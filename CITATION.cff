@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "TRI-X: Triage-TiTrATE-XAI Framework for Explainable Emergency Triage"
+version: 1.0.0
+date-released: 2026-01-09
+authors:
+  - family-names: "Tritham"
+    given-names: "Chatchai"
+    email: "chatchait66@nu.ac.th"
+    affiliation: "Department of Computer Science and Information Technology, Faculty of Science, Naresuan University, Phitsanulok 65000, Thailand"
+repository-code: "https://github.com/ChatchaiTritham/TRI-X"
+url: "https://github.com/ChatchaiTritham/TRI-X"
+abstract: >-
+  TRI-X integrates Triage (clinical guidelines), TiTrATE (time-triggered
+  actions), and XAI (explainability) to create a transparent, auditable
+  emergency triage system based on Screening-First Risk Governance Logic (SRGL).
+  This framework prioritizes clinical guidelines over ML predictions while
+  providing comprehensive explainability through SHAP, LIME, and rule-based
+  methods.
+keywords:
+  - explainable ai
+  - emergency triage
+  - clinical decision support
+  - risk governance
+  - healthcare ai
+  - patient safety
+license: MIT
