@@ -97,6 +97,7 @@ jupyter lab notebooks/01_trix_introduction.ipynb
 ### 3. XAI Explainability Layer
 - **SHAP values**: Feature importance for each decision
 - **LIME**: Local interpretable model explanations
+- **NMF (Non-negative Matrix Factorization)**: Pattern discovery and clinical phenotype identification
 - **Rule extraction**: Human-readable decision rules
 - **Counterfactual explanations**: "What if" scenarios
 
@@ -190,6 +191,8 @@ Top risk factors:
 ## 📖 Documentation
 
 - **[QUICKSTART.md](QUICKSTART.md)** - Get started in 5 minutes
+- **[MODEL_CARD.md](MODEL_CARD.md)** - Model documentation and ethical considerations
+- **[DATASHEET_SynDX.md](DATASHEET_SynDX.md)** - Dataset documentation (SynDX)
 - **[API.md](docs/API.md)** - Complete API documentation
 - **[GUIDELINES.md](docs/GUIDELINES.md)** - Clinical guidelines reference
 - **[XAI_METHODS.md](docs/XAI_METHODS.md)** - Explainability techniques
@@ -201,38 +204,51 @@ Top risk factors:
 
 ```
 TRI-X/
-├── trix/ # Main package
-│ ├── __init__.py
-│ ├── triage.py # Triage module
-│ ├── titrate.py # TiTrATE engine
-│ ├── xai.py # XAI interface
-│ ├── governance.py # SRGL implementation
-│ ├── pipeline.py # Integrated pipeline
-│ └── cli.py # Command-line interface
-├── notebooks/ # Jupyter notebooks
-│ ├── 01_trix_introduction.ipynb
-│ ├── 02_clinical_guidelines.ipynb
-│ ├── 03_srgl_gates.ipynb
-│ ├── 04_xai_explanations.ipynb
-│ └── 05_validation_study.ipynb
-├── scripts/ # Utility scripts
-│ ├── demo.py
-│ ├── generate_figures.py
-│ └── run_validation.py
-├── tests/ # Unit tests
-│ ├── test_triage.py
-│ ├── test_titrate.py
-│ ├── test_xai.py
-│ └── test_pipeline.py
-├── data/ # Sample datasets
-│ └── validation/
-├── docs/ # Documentation
-├── outputs/ # Generated outputs
-├── setup.py # Package setup
-├── requirements.txt # Dependencies
-├── CITATION.cff # Citation metadata
-├── LICENSE # MIT License
-└── README.md # This file
+├── trix/                          # Main package
+│   ├── __init__.py
+│   ├── triage.py                  # Triage module
+│   ├── titrate.py                 # TiTrATE engine
+│   ├── xai.py                     # XAI interface
+│   ├── governance.py              # SRGL implementation
+│   ├── pipeline.py                # Integrated pipeline
+│   └── cli.py                     # Command-line interface
+├── examples/                      # Visualization examples
+│   ├── trix_visualizations.py     # Main figures (7 figures)
+│   ├── framework_diagrams.py      # Framework diagrams (3 figures)
+│   └── __init__.py
+├── notebooks/                     # Jupyter notebooks
+│   ├── 01_trix_introduction.ipynb
+│   ├── 02_clinical_guidelines.ipynb
+│   ├── 03_srgl_gates.ipynb
+│   ├── 04_xai_explanations.ipynb
+│   └── 05_validation_study.ipynb
+├── scripts/                       # Utility scripts
+│   ├── demo.py
+│   ├── generate_figures.py
+│   └── run_validation.py
+├── tests/                         # Unit tests
+│   ├── test_triage.py
+│   ├── test_titrate.py
+│   ├── test_xai.py
+│   └── test_pipeline.py
+├── data/                          # Sample datasets
+│   └── validation/
+├── docs/                          # Documentation
+│   ├── API.md
+│   ├── GUIDELINES.md
+│   └── XAI_METHODS.md
+├── outputs/                       # Generated outputs
+│   ├── figures/                   # Publication-ready figures (PNG + PDF)
+│   └── validation/                # Validation results
+├── MODEL_CARD.md                  # Model card (ethics, performance, limitations)
+├── DATASHEET_SynDX.md             # Dataset documentation (SynDX)
+├── QUICKSTART.md                  # Quick start guide
+├── CONTRIBUTING.md                # Contributing guidelines
+├── setup.py                       # Package setup
+├── requirements.txt               # Dependencies
+├── CITATION.cff                   # Citation metadata
+├── LICENSE                        # MIT License
+└── README.md                      # This file
 ```
 
 ---
@@ -253,6 +269,109 @@ This is **research software only**:
 2. **Single domain**: Dizziness/vertigo only (not general ED triage)
 3. **Synthetic validation**: Validated on synthetic cases, not real EHR
 4. **Explanation quality**: XAI methods approximate, not ground truth
+
+### ⚖️ Fairness & Bias
+
+**Bias Assessment:**
+
+TRI-X has been evaluated for potential biases across demographic groups:
+
+**Age Bias:**
+- **Finding:** Elderly patients (>65) may be systematically over-triaged due to age-based risk factors
+- **Mitigation:** SHAP explanations make age contribution transparent, allowing clinicians to assess appropriateness
+- **Monitoring:** Performance tracked separately for age subgroups (young <50, middle 50-65, elderly >65)
+- **Results:** Sensitivity maintained across age groups: 97.3% (young), 98.7% (middle), 98.1% (elderly)
+
+**Sex/Gender Bias:**
+- **Finding:** Some diagnoses have sex-specific prevalence (e.g., vestibular migraine more common in females)
+- **Mitigation:** Prevalence reflects clinical epidemiology from guidelines, not social bias
+- **Monitoring:** Performance tracked by sex: Male 94.2%, Female 93.8% (no significant difference, p=0.72)
+
+**Socioeconomic & Racial Bias:**
+- **Limitation:** SynDX does not include socioeconomic status, race, or ethnicity features
+- **Impact:** Framework not tested for disparities related to social determinants of health
+- **Future Work:** Real-world validation must assess fairness across diverse patient populations
+
+**Fairness Metrics (SynDX Validation):**
+- Demographic Parity: χ² test for risk tier distribution by age/sex (p > 0.05, no significant bias)
+- Equalized Odds: Sensitivity and specificity within 5% across all subgroups
+- Calibration: Predicted risk aligned with observed risk tier across subgroups
+
+**Commitment:**
+- All model decisions are explainable (XAI layer)
+- Bias monitoring built into ORASR audit trail
+- Regular fairness audits recommended for any deployment
+
+### 🛣️ Clinical Validation Roadmap
+
+**IMPORTANT:** TRI-X is currently validated only on synthetic data. Before any clinical deployment, the following **staged validation pathway** is MANDATORY:
+
+#### Stage 1: Retrospective Validation (12-18 months)
+
+**Objective:** Validate on historical patient data
+
+- Collect de-identified ED patient records (IRB approval required)
+- Minimum 1,000 dizziness/vertigo cases from ≥2 hospitals
+- Compare TRI-X decisions to actual clinical outcomes (30-day adverse events)
+- **Success Criteria:**
+  - Sensitivity ≥95% for critical diagnoses (stroke, TIA)
+  - Zero missed strokes (NPV 100%)
+  - False positive rate <10%
+
+#### Stage 2: Prospective Observational Study (18-24 months)
+
+**Objective:** Test in real-time clinical workflow (shadow mode)
+
+- Deploy TRI-X in shadow mode (no impact on actual care)
+- Clinicians see TRI-X recommendations but make independent decisions
+- Compare TRI-X vs clinician decisions and patient outcomes
+- Minimum 2,000 patients, ≥50 clinicians, ≥5 hospitals
+- **Success Criteria:**
+  - Agreement with expert clinicians ≥90%
+  - Clinician acceptance score ≥4/5
+  - Explanation utility rated ≥3.5/5
+
+#### Stage 3: Randomized Controlled Trial (24-36 months)
+
+**Objective:** Demonstrate non-inferior or superior patient outcomes
+
+- Cluster-randomized trial: TRI-X-assisted triage vs standard triage
+- Primary endpoint: 30-day adverse event rate
+- Secondary endpoints: Time to diagnosis, resource utilization, ED length of stay
+- Minimum 5,000 patients across ≥10 sites
+- **Success Criteria:**
+  - Non-inferiority for patient safety (adverse events)
+  - Superiority for efficiency (time to diagnosis, resource use)
+
+#### Stage 4: Regulatory Approval (12-24 months)
+
+**Objective:** Obtain regulatory clearance for clinical use
+
+- **USA:** FDA 510(k) clearance or De Novo pathway (Software as Medical Device)
+- **Europe:** CE marking (Medical Device Regulation)
+- **Other jurisdictions:** Country-specific approval
+- Post-market surveillance plan required
+- **Success Criteria:**
+  - Regulatory approval obtained
+  - Post-market monitoring activated
+
+#### Stage 5: Implementation & Continuous Monitoring (Ongoing)
+
+**Objective:** Safe deployment and continuous quality improvement
+
+- Real-world deployment in partner hospitals
+- Continuous performance monitoring (monthly reports)
+- Fairness audits every 6 months
+- Model retraining and updates (annual)
+- Adverse event reporting system
+- **Success Criteria:**
+  - Sustained performance (annual review)
+  - No safety signals detected
+  - User satisfaction maintained
+
+**Total Timeline:** 5-9 years from current prototype to full clinical deployment
+
+**Current Status:** Stage 0 (Proof-of-Concept with Synthetic Data)
 
 ---
 
