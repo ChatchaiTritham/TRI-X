@@ -28,7 +28,8 @@ setup(
  long_description=long_desc,
  long_description_content_type="text/markdown",
  url="https://github.com/ChatchaiTritham/TRI-X",
- packages=find_packages(),
+ package_dir={"": "src"},
+ packages=find_packages(where="src"),
  classifiers=[
  "Development Status :: 4 - Beta",
  "Intended Audience :: Science/Research",
@@ -37,12 +38,11 @@ setup(
  "Topic :: Scientific/Engineering :: Medical Science Apps.",
  "License :: OSI Approved :: MIT License",
  "Programming Language :: Python :: 3",
- "Programming Language :: Python :: 3.8",
  "Programming Language :: Python :: 3.9",
  "Programming Language :: Python :: 3.10",
  "Programming Language :: Python :: 3.11",
  ],
- python_requires=">=3.8",
+ python_requires=">=3.9",
  install_requires=[
  "numpy>=1.21.0",
  "pandas>=1.3.0",
