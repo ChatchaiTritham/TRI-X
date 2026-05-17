@@ -5,8 +5,8 @@ Package configuration for the TRI-X framework, which implements screening-first
 risk governance logic (SRGL) for safe AI decision-making in critical systems.
 
 Author: Chatchai Tritham
-Advisor: Assoc. Prof. Dr. Chakkrit Snae Namahoot
-Institution: Naresuan University, Thailand
+Supervisor: Chakkrit Snae Namahoot
+Institution: Department of Computer Science and Information Technology, Faculty of Science, Naresuan University, Phitsanulok 65000, Thailand
 """
 
 from setuptools import setup, find_packages
@@ -23,7 +23,7 @@ setup(
  name="trix",
  version="1.0.0",
  author="Chatchai Tritham, Chakkrit Snae Namahoot",
- author_email="chatchait66@nu.ac.th",
+ author_email="chatchait66@nu.ac.th, chakkrits@nu.ac.th",
  description="TRI-X: Triage-TiTrATE-XAI Framework for Emergency Decision Support",
  long_description=long_desc,
  long_description_content_type="text/markdown",
