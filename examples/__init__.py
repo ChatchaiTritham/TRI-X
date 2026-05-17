@@ -1,7 +1,7 @@
-"""
+﻿"""
 TRI-X Visualization Examples
 
-Publication-ready figures for academic papers and presentations.
+Manuscript-preparation figures for academic papers and presentations.
 """
 
 from .trix_visualizations import *
