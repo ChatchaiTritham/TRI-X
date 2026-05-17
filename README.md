@@ -81,10 +81,6 @@ pytest tests -v
 
 ## Manuscript Alignment
 
-Canonical manuscript package:
-
-- `D:\PhD-NU\Manuscript\Manuscript\HIR_TRI-X-Framework`
-
 Use this repository as implementation and reproducibility support for the TRI-X
 framework manuscript while that manuscript remains in progress. The active
 manuscript package for alignment notes is the HIR framework package, not the ESA
