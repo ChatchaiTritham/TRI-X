@@ -1,4 +1,4 @@
-# TRI-X
+﻿# TRI-X
 
 ## Overview
 
@@ -100,21 +100,6 @@ The manuscript-level technical content maps to this repository as follows:
 
 `TRI-X-CDSS` remains an implementation/integration package and should not be
 counted as a standalone TRI-X article.
-
-## Methodological References
-
-The framework is grounded in:
-
-- TiTrATE bedside reasoning for timing, triggers, and targeted examination
-- emergency triage principles for safety-first routing
-- conservative clinical decision support practice under uncertainty
-- transparent audit trails and reproducible decision behavior
-- scenario-based validation rather than deployed diagnostic-system claims
-
-## Citation
-
-The associated manuscript is still in preparation. Until its publication status
-changes, cite this software repository using `CITATION.cff`.
 
 ## Contact
 
