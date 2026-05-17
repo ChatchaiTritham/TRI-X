@@ -1,8 +1,8 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 TRI-X Framework Comprehensive Visualizations
 
-Generates publication-ready figures for:
+Generates manuscript-preparation figures for:
 - SRGL Logic Flow Diagrams
 - Framework Architecture
 - Performance Metrics (2D/3D)
@@ -135,7 +135,7 @@ def create_srgl_flow_diagram(output_dir='outputs/figures'):
     ax.text(
         5,
         8.2,
-        'Focal weakness • Thunderclap headache • Acute hearing loss\nDiplopia • Dysarthria • Severe ataxia',
+        'Focal weakness โ€ข Thunderclap headache โ€ข Acute hearing loss\nDiplopia โ€ข Dysarthria โ€ข Severe ataxia',
         ha='center',
         va='center',
         fontsize=9,
@@ -163,7 +163,7 @@ def create_srgl_flow_diagram(output_dir='outputs/figures'):
         fontweight='bold',
     )
 
-    # YES path (Red Flag detected) → R1/R2
+    # YES path (Red Flag detected) โ’ R1/R2
     arrow_yes1 = FancyArrowPatch(
         (6, 7),
         (7.5, 7),
@@ -205,7 +205,7 @@ def create_srgl_flow_diagram(output_dir='outputs/figures'):
         fontsize=8,
     )
 
-    # NO path → Gate 2
+    # NO path โ’ Gate 2
     arrow_no1 = FancyArrowPatch(
         (5, 6.8),
         (5, 6.0),
@@ -241,7 +241,7 @@ def create_srgl_flow_diagram(output_dir='outputs/figures'):
     ax.text(
         5,
         5.0,
-        'Age >65 • Hypertension • Diabetes • CVD • Atrial fibrillation\nPrevious stroke/TIA • Vascular risk factors',
+        'Age >65 โ€ข Hypertension โ€ข Diabetes โ€ข CVD โ€ข Atrial fibrillation\nPrevious stroke/TIA โ€ข Vascular risk factors',
         ha='center',
         va='center',
         fontsize=9,
@@ -269,7 +269,7 @@ def create_srgl_flow_diagram(output_dir='outputs/figures'):
         fontweight='bold',
     )
 
-    # YES path (High risk) → R2/R3
+    # YES path (High risk) โ’ R2/R3
     arrow_yes2 = FancyArrowPatch(
         (6, 4),
         (7.5, 4),
@@ -311,7 +311,7 @@ def create_srgl_flow_diagram(output_dir='outputs/figures'):
         fontsize=8,
     )
 
-    # NO path → Gate 3
+    # NO path โ’ Gate 3
     arrow_no2 = FancyArrowPatch(
         (5, 3.8),
         (5, 3.0),
@@ -347,7 +347,7 @@ def create_srgl_flow_diagram(output_dir='outputs/figures'):
     ax.text(
         5,
         2.0,
-        'Symptom clarity • Diagnosis confidence • Temporal pattern consistency\nVital sign stability • Comorbidity complexity',
+        'Symptom clarity โ€ข Diagnosis confidence โ€ข Temporal pattern consistency\nVital sign stability โ€ข Comorbidity complexity',
         ha='center',
         va='center',
         fontsize=9,
@@ -375,7 +375,7 @@ def create_srgl_flow_diagram(output_dir='outputs/figures'):
         fontweight='bold',
     )
 
-    # YES path (High uncertainty) → R3
+    # YES path (High uncertainty) โ’ R3
     arrow_yes3 = FancyArrowPatch(
         (6, 1),
         (7.5, 1),
@@ -412,7 +412,7 @@ def create_srgl_flow_diagram(output_dir='outputs/figures'):
         8.4, 0.85, 'Moderate Risk\nObservation', ha='center', va='center', fontsize=8
     )
 
-    # NO path → R4/R5
+    # NO path โ’ R4/R5
     arrow_no3 = FancyArrowPatch(
         (4, 1),
         (2.5, 1),
@@ -543,7 +543,7 @@ def create_framework_architecture(output_dir='outputs/figures'):
     ax.text(
         2.25,
         7.3,
-        '• ACEP Dizziness/Vertigo\n• AHA/ASA Stroke\n• AAO-HNS BPPV\n• Red Flag Detection',
+        'โ€ข ACEP Dizziness/Vertigo\nโ€ข AHA/ASA Stroke\nโ€ข AAO-HNS BPPV\nโ€ข Red Flag Detection',
         ha='center',
         va='center',
         fontsize=9,
@@ -582,7 +582,7 @@ def create_framework_architecture(output_dir='outputs/figures'):
     ax.text(
         7,
         7.3,
-        '• Symptom Patterns\n• Risk Factor Scoring\n• Temporal Analysis\n• Comorbidity Assessment',
+        'โ€ข Symptom Patterns\nโ€ข Risk Factor Scoring\nโ€ข Temporal Analysis\nโ€ข Comorbidity Assessment',
         ha='center',
         va='center',
         fontsize=9,
@@ -621,7 +621,7 @@ def create_framework_architecture(output_dir='outputs/figures'):
     ax.text(
         11.75,
         7.3,
-        '• SHAP Values\n• LIME\n• NMF Phenotypes\n• Counterfactuals\n• Rule Extraction',
+        'โ€ข SHAP Values\nโ€ข LIME\nโ€ข NMF Phenotypes\nโ€ข Counterfactuals\nโ€ข Rule Extraction',
         ha='center',
         va='center',
         fontsize=9,
@@ -672,7 +672,7 @@ def create_framework_architecture(output_dir='outputs/figures'):
     ax.text(
         7,
         5.1,
-        'Gate G1: Critical Red Flags  →  Gate G2: Risk Factors  →  Gate G3: Uncertainty Quantification',
+        'Gate G1: Critical Red Flags  โ’  Gate G2: Risk Factors  โ’  Gate G3: Uncertainty Quantification',
         ha='center',
         va='center',
         fontsize=10,
@@ -822,7 +822,7 @@ def create_framework_architecture(output_dir='outputs/figures'):
     ax.text(
         7,
         0.8,
-        'Transparent • Auditable • Safety-First • Clinically-Grounded',
+        'Transparent โ€ข Auditable โ€ข Safety-First โ€ข Clinically-Grounded',
         ha='center',
         va='center',
         fontsize=11,
@@ -982,7 +982,7 @@ def create_performance_dashboard_2d(output_dir='outputs/figures'):
 
         color = COLORS['success'] if passed else COLORS['danger']
         status_colors.append(color)
-        status_labels.append('✓ PASS' if passed else '✗ FAIL')
+        status_labels.append('โ“ PASS' if passed else 'โ— FAIL')
 
     bars = ax3.barh(
         range(len(metrics)),
@@ -1086,13 +1086,13 @@ def create_performance_dashboard_2d(output_dir='outputs/figures'):
     # Status indicator
     if pass_rate == 100:
         status_color = COLORS['success']
-        status_text = '✓ ALL TARGETS MET'
+        status_text = 'โ“ ALL TARGETS MET'
     elif pass_rate >= 80:
         status_color = COLORS['warning']
-        status_text = '⚠ MOSTLY MET'
+        status_text = 'โ  MOSTLY MET'
     else:
         status_color = COLORS['danger']
-        status_text = '✗ NEEDS IMPROVEMENT'
+        status_text = 'โ— NEEDS IMPROVEMENT'
 
     status_box = FancyBboxPatch(
         (0.25, 0.05),
@@ -1189,7 +1189,7 @@ def create_performance_3d(output_dir='outputs/figures'):
 
     # Title
     ax.set_title(
-        '3D Performance Analysis: Age × Risk × Accuracy',
+        '3D Performance Analysis: Age ร— Risk ร— Accuracy',
         fontsize=14,
         fontweight='bold',
         pad=20,
