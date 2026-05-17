@@ -23,11 +23,34 @@ pip install -e .
 
 - Script demo:
   - `scripts/demo.py`: runnable end-to-end pipeline demo
+  - `scripts/generate_manuscript_figures.py`: curated manuscript figure generation
 - Example scripts:
   - `examples/trix_visualizations.py`: visualization walkthrough
   - `examples/framework_diagrams.py`: framework illustration generation
 - Notebook:
   - `notebooks/01_trix_introduction.ipynb`: introductory interactive walkthrough
+
+## Curated Manuscript Figures
+
+The curated manuscript figure set is maintained for manuscripts that are still
+in preparation. This status does not imply publication, acceptance, or final
+journal readiness for every raw demo or exploratory image in `outputs/figures/`.
+
+Regenerate the curated figure set:
+
+```bash
+python scripts/generate_manuscript_figures.py
+```
+
+Outputs:
+
+- `figures/manuscript/`: selected PDF and PNG manuscript figures
+- `FIGURE_MANIFEST.csv`: figure role, source script, source artifact, caption,
+  and intended article section
+
+The dense `fig3_performance_dashboard_2d` demo output is split into focused
+article panels in the curated set so labels remain readable after journal
+scaling.
 
 ## Cross-Repository Tutorial Charts
 
@@ -55,6 +78,47 @@ Importable code lives in `src/trix/`.
 ```bash
 pytest tests -v
 ```
+
+## Manuscript Alignment
+
+Canonical manuscript package:
+
+- `D:\PhD-NU\Manuscript\Manuscript\HIR_TRI-X-Framework`
+
+Use this repository as implementation and reproducibility support for the TRI-X
+framework manuscript while that manuscript remains in progress. The active
+manuscript package for alignment notes is the HIR framework package, not the ESA
+expert-system package. This keeps the repository claim aligned with TRI-X as a
+safety-first framework for decision-centric clinical triage under uncertainty.
+
+The manuscript-level technical content maps to this repository as follows:
+
+- topic ownership: integrated TRI-X framework
+- decision logic: triage-first safety gate, TiTrATE patterning, pathway routing,
+  and explanation traceability
+- formulas: uncertainty and pathway-governance specifications
+- pseudocode: five-group decision logic and framework-level implementation
+  contracts
+- figure artifacts: curated framework architecture, performance targets,
+  validation gate status, and risk-tier distribution in `figures/manuscript/`
+
+`TRI-X-CDSS` remains an implementation/integration package and should not be
+counted as a standalone TRI-X article.
+
+## Methodological References
+
+The framework is grounded in:
+
+- TiTrATE bedside reasoning for timing, triggers, and targeted examination
+- emergency triage principles for safety-first routing
+- conservative clinical decision support practice under uncertainty
+- transparent audit trails and reproducible decision behavior
+- scenario-based validation rather than deployed diagnostic-system claims
+
+## Citation
+
+The associated manuscript is still in preparation. Until its publication status
+changes, cite this software repository using `CITATION.cff`.
 
 ## Contact
 
