@@ -2,123 +2,99 @@
 
 ## Overview
 
-TRI-X is the integrated Triage-TiTrATE-XAI research pipeline for accountable
-clinical decision support in acute dizziness and vertigo.
+Framework-level TRI-X package for triage, TiTrATE reasoning, safety governance, and transparent decision support.
 
-## Installation
+This repository is part of an eight-repository clinical decision-support research portfolio. Current status: manuscript or component package in preparation. The repository role is **manuscript**.
 
-```bash
+## Standard Repository Layout
+
+| Path | Purpose |
+|---|---|
+| `src/` | Package source code: `trix` |
+| `tests/` | Unit, smoke, and behavior checks |
+| `scripts/` | Reproducibility and export scripts |
+| `examples/` | Runnable examples and demonstrations |
+| `figures/`, `visualizations/`, `outputs/`, `results/` | Generated visual and result artifacts |
+| `data/`, `models/`, `evaluation/` | Dataset, model, and evaluation assets when used by this repo |
+| `FIGURE_MANIFEST.csv` | Curated figure inventory for manuscript or component evidence |
+| `pyproject.toml`, `setup.py`, `requirements.txt`, `pytest.ini` | Python package and test configuration |
+
+## Architecture Flow
+
+```mermaid
+flowchart LR
+    A[Input data or scenario] --> B[Core package logic]
+    B --> C[Safety and quality checks]
+    C --> D[Metrics and audit outputs]
+    D --> E[Curated figures and result artifacts]
+```
+
+## Core Logic
+
+- Estimate triage risk.
+- Apply TiTrATE dizziness reasoning.
+- Apply safety governance and audit logic.
+- Export framework and performance panels.
+
+## Key Formulas And Rules
+
+- TRI-X decision: D = f(Triage, TiTrATE, SRGL, XAI)
+- Risk gate: action = escalate if risk >= theta_high else monitor
+- Validation target: pass if metric >= target and governance constraints hold
+
+## Data, Results, Charts, And Graphs
+
+The curated visual set is controlled by FIGURE_MANIFEST.csv and currently lists **4** figure entries. The manifest links figure IDs, roles, source scripts, source data, captions, sections, timestamps, and export DPI.
+
+| ID | Role | PNG | PDF |
+|---|---|---|---|
+| TRIX-F1 | manuscript | `figures\manuscript\fig1_framework_architecture.png` | `figures\manuscript\fig1_framework_architecture.pdf` |
+| TRIX-F2 | manuscript | `figures\manuscript\fig2_performance_targets.png` | `figures\manuscript\fig2_performance_targets.pdf` |
+| TRIX-F3 | manuscript | `figures\manuscript\fig3_validation_gate_status.png` | `figures\manuscript\fig3_validation_gate_status.pdf` |
+| TRIX-F4 | manuscript | `figures\manuscript\fig4_risk_tier_distribution.png` | `figures\manuscript\fig4_risk_tier_distribution.pdf` |
+
+## Reproduce
+
+```powershell
+cd D:\PhD-NU\Manuscript\GitHub\TRI-X
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 pip install -e .
+python -m pytest -q
 ```
 
-## Repository Structure
+If figure-generation scripts are present, run the matching script listed in `FIGURE_MANIFEST.csv` from the repository root.
 
-- `src/trix/`: importable package
-- `tests/`: automated tests
-- `scripts/`: runnable demos
-- `examples/`: example usage
-- `notebooks/`: research notebooks
+## Verification Criteria
 
-## Tutorials And Demos
+- Root metadata and package files are present.
+- Source paths follow `src/<package>/...` where the package shape allows it.
+- Tests pass with `python -m pytest -q`.
+- Curated figures are listed in `FIGURE_MANIFEST.csv` rather than inferred from every raw image file.
+- Manuscript status wording stays conservative: in preparation, implementation, supplementary, or reproducibility/component evidence as appropriate.
+- No local manuscript path, external assistant wording, or software metadata block is kept in the repository text.
 
-- Script demo:
-  - `scripts/demo.py`: runnable end-to-end pipeline demo
-  - `scripts/generate_manuscript_figures.py`: curated manuscript figure generation
-- Example scripts:
-  - `examples/trix_visualizations.py`: visualization walkthrough
-  - `examples/framework_diagrams.py`: framework illustration generation
-- Notebook:
-  - `notebooks/01_trix_introduction.ipynb`: introductory interactive walkthrough
+## Portfolio Relationship
 
-## Curated Manuscript Figures
-
-The curated manuscript figure set is maintained for manuscripts that are still
-in preparation. This status does not imply publication, acceptance, or final
-journal readiness for every raw demo or exploratory image in `outputs/figures/`.
-
-Regenerate the curated figure set:
-
-```bash
-python scripts/generate_manuscript_figures.py
-```
-
-Outputs:
-
-- `figures/manuscript/`: selected PDF and PNG manuscript figures
-- `FIGURE_MANIFEST.csv`: figure role, source script, source artifact, caption,
-  and intended article section
-
-The dense `fig3_performance_dashboard_2d` demo output is split into focused
-article panels in the curated set so labels remain readable after journal
-scaling.
-
-## Cross-Repository Tutorial Charts
-
-- `../tutorial_surface_comparison.png`: scripts vs examples vs notebooks across all repositories
-- `../tutorial_asset_density.png`: interactive/tutorial asset density normalized by repository size
-- `../tutorial_maturity_report.md`: combined maturity summary
-
-## Package Scope
-
-The package currently includes:
-
-- triage assessment in `src/trix/triage.py`
-- TiTrATE execution logic in `src/trix/titrate.py`
-- governance/SRGL screening in `src/trix/governance.py`
-- integrated orchestration in `src/trix/pipeline.py`
-- explanation interfaces in `src/trix/xai.py`
-
-## Source Layout
-
-This repository uses the recommended `src/<package_name>` layout.
-Importable code lives in `src/trix/`.
-
-## Testing
-
-```bash
-pytest tests -v
-```
-
-## Manuscript Alignment
-
-Use this repository as implementation and reproducibility support for the TRI-X
-framework manuscript while that manuscript remains in progress. The active
-manuscript package for alignment notes is the HIR framework package, not the ESA
-expert-system package. This keeps the repository claim aligned with TRI-X as a
-safety-first framework for decision-centric clinical triage under uncertainty.
-
-The manuscript-level technical content maps to this repository as follows:
-
-- topic ownership: integrated TRI-X framework
-- decision logic: triage-first safety gate, TiTrATE patterning, pathway routing,
-  and explanation traceability
-- formulas: uncertainty and pathway-governance specifications
-- pseudocode: five-group decision logic and framework-level implementation
-  contracts
-- figure artifacts: curated framework architecture, performance targets,
-  validation gate status, and risk-tier distribution in `figures/manuscript/`
-
-`TRI-X-CDSS` remains an implementation/integration package and should not be
-counted as a standalone TRI-X article.
+| Repository | Role |
+|---|---|
+| BASICS-CDSS | Beyond-accuracy evaluation methodology |
+| TRI-X | Framework-level package |
+| ORASR | Routing and safety-action component |
+| DRAS-5 | Dynamic risk-state component |
+| SAFE-Gate | Safety-gated ensemble framework |
+| SynDX | Synthetic validation and explainability evidence |
+| SURgul | SRGL/governance reproducibility component |
+| TRI-X-CDSS | Integration and implementation package |
 
 ## Contact
 
-### Contact Author
+**Chatchai Tritham**  
+Department of Computer Science and Information Technology, Faculty of Science, Naresuan University, Phitsanulok 65000, Thailand  
+Email: chatchait66@nu.ac.th  
+ORCID: 0000-0001-7899-228X
 
-**Chatchai Tritham** (Author)
-
-- Email: [chatchait66@nu.ac.th](mailto:chatchait66@nu.ac.th)
-- ORCID: [0000-0001-7899-228X](https://orcid.org/0000-0001-7899-228X)
-- Department of Computer Science and Information Technology
-- Faculty of Science, Naresuan University
-- Phitsanulok 65000, Thailand
-
-### Supervisor
-
-**Chakkrit Snae Namahoot**
-
-- E-mail: [chakkrits@nu.ac.th](mailto:chakkrits@nu.ac.th)
-- ORCID: [0000-0003-4660-4590](https://orcid.org/0000-0003-4660-4590)
-- Department of Computer Science and Information Technology
-- Faculty of Science, Naresuan University
-- Phitsanulok 65000, Thailand
+**Chakkrit Snae Namahoot**  
+Department of Computer Science and Information Technology, Faculty of Science, Naresuan University, Phitsanulok 65000, Thailand  
+Email: chakkrits@nu.ac.th  
+ORCID: 0000-0003-4660-4590
