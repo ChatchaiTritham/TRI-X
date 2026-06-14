@@ -1,0 +1,12 @@
+diagnosis,group,count,proportion_pct
+BPPV,benign_peripheral,1373,27.46
+Vestibular Neuritis,benign_peripheral,710,14.2
+Labyrinthitis,benign_peripheral,474,9.48
+Meniere's Disease,benign_peripheral,352,7.04
+Vestibular Migraine,benign_peripheral,587,11.74
+PPPD,benign_peripheral,300,6.0
+Vestibular Paroxysmia,benign_peripheral,138,2.76
+Benign Other,benign_peripheral,277,5.54
+Posterior Circulation Stroke,central_dangerous,510,10.2
+TIA,central_dangerous,216,4.32
+Cerebellar Hemorrhage,central_dangerous,63,1.26

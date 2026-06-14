@@ -1,0 +1,41 @@
+{
+  "test_n": 1500,
+  "hybrid_ensemble": {
+    "accuracy": 0.796,
+    "accuracy_ci95": [
+      0.775333,
+      0.816
+    ],
+    "macro_f1": 0.658173
+  },
+  "standalone_ml_rf": {
+    "accuracy": 0.782,
+    "accuracy_ci95": [
+      0.761333,
+      0.802667
+    ],
+    "macro_f1": 0.648002
+  },
+  "rule_based": {
+    "accuracy": 0.345333,
+    "accuracy_ci95": [
+      0.322,
+      0.369333
+    ],
+    "macro_f1": 0.252899
+  },
+  "mcnemar_hybrid_vs_rules": {
+    "b": 732,
+    "c": 56,
+    "chi2": 578.2043147208121,
+    "p_value_chi2": 9.218916059606441e-128,
+    "p_value": 4.0554987041682426e-151
+  },
+  "mcnemar_hybrid_vs_ml": {
+    "b": 66,
+    "c": 45,
+    "chi2": 3.6036036036036037,
+    "p_value_chi2": 0.05765446863352124,
+    "p_value": 0.05716364524660199
+  }
+}

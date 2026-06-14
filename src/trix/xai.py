@@ -43,7 +43,10 @@ class XAIInterface:
     def __init__(
         self,
         method: ExplanationMethod = ExplanationMethod.SHAP,
-        enable_logging: bool = True
+        enable_logging: bool = True,
+        model: Optional[Any] = None,
+        feature_names: Optional[List[str]] = None,
+        background: Optional[Any] = None,
     ):
         """
         Initialize XAI interface.
@@ -51,9 +54,21 @@ class XAIInterface:
         Args:
             method: Default explanation method
             enable_logging: Enable explanation logging
+            model: Optional fitted tree model (e.g. a RandomForest) enabling genuine
+                SHAP attributions via ``shap.TreeExplainer``.
+            feature_names: Ordered feature names matching the model's input columns.
+            background: Optional background sample (array-like) for the explainer.
+
+        Notes:
+            When ``model`` is supplied, :meth:`explain` computes real SHAP values from
+            the fitted model. The full, model-backed SHAP/LIME/DiCE implementations
+            used by the empirical pipeline live in ``trix.empirical.explain``.
         """
         self.method = method
         self.enable_logging = enable_logging
+        self.model = model
+        self.feature_names = feature_names
+        self.background = background
 
         logger.info(f"XAIInterface initialized with method={method.value}")
 
@@ -84,29 +99,85 @@ class XAIInterface:
             return self._explain_default(input_data)
 
     def _explain_shap(self, input_data: Dict[str, Any]) -> Explanation:
-        """SHAP-based explanation"""
-        features = {k: float(v) for k, v in input_data.items() if isinstance(v, (int, float))}
-        importance = {k: v / sum(features.values()) if features else 0 for k, v in features.items()}
+        """SHAP-based explanation.
+
+        When a fitted tree model was supplied at construction time, this computes
+        genuine SHAP attributions for the instance via ``shap.TreeExplainer``.
+        Without a model, it raises -- there is no honest SHAP value to return, so the
+        caller should attach a model or use the ``empirical`` pipeline directly.
+        """
+        if self.model is None:
+            raise ValueError(
+                "Genuine SHAP attribution requires a fitted model. Construct "
+                "XAIInterface(model=..., feature_names=...) or use "
+                "trix.empirical.explain.compute_shap."
+            )
+
+        import numpy as np
+        import shap
+
+        names = self.feature_names or [
+            k for k, v in input_data.items() if isinstance(v, (int, float))
+        ]
+        x = np.array([[float(input_data[n]) for n in names]], dtype=float)
+        explainer = shap.TreeExplainer(self.model)
+        values = explainer.shap_values(x)
+        arr = np.asarray(values)
+        if arr.ndim == 3:
+            inst = np.mean(np.abs(arr[0]), axis=1)
+        elif isinstance(values, list):
+            inst = np.mean([np.abs(np.asarray(v)[0]) for v in values], axis=0)
+        else:
+            inst = np.abs(arr[0])
+        inst = np.asarray(inst).ravel()[: len(names)]
+        importance = {names[i]: float(inst[i]) for i in range(len(names))}
 
         return Explanation(
             method=ExplanationMethod.SHAP,
-            feature_importance=importance,
+            feature_importance=dict(
+                sorted(importance.items(), key=lambda kv: kv[1], reverse=True)
+            ),
             rules=[],
-            confidence=0.85,
-            metadata={}
+            confidence=0.0,
+            metadata={"explainer": "shap.TreeExplainer"},
         )
 
     def _explain_lime(self, input_data: Dict[str, Any]) -> Explanation:
-        """LIME-based explanation"""
-        features = {k: float(v) for k, v in input_data.items() if isinstance(v, (int, float))}
-        importance = {k: abs(v) for k, v in features.items()}
+        """LIME-based explanation.
+
+        Delegates to the genuine local-surrogate implementation in
+        ``trix.empirical.explain.compute_lime`` when a fitted model is attached.
+        """
+        if self.model is None:
+            raise ValueError(
+                "Genuine LIME attribution requires a fitted model. See "
+                "trix.empirical.explain.compute_lime."
+            )
+
+        import numpy as np
+        from trix.empirical.explain import compute_lime
+
+        names = self.feature_names or [
+            k for k, v in input_data.items() if isinstance(v, (int, float))
+        ]
+        x = np.array([float(input_data[n]) for n in names], dtype=float)
+        background = (
+            np.asarray(self.background, dtype=float)
+            if self.background is not None
+            else x.reshape(1, -1)
+        )
+        result = compute_lime(
+            self.model.predict_proba, background, x, names,
+            class_names=[str(c) for c in getattr(self.model, "classes_", [])],
+        )
+        importance = {f: abs(w) for f, w in result.get("local_weights", [])}
 
         return Explanation(
             method=ExplanationMethod.LIME,
             feature_importance=importance,
             rules=[],
-            confidence=0.80,
-            metadata={}
+            confidence=0.0,
+            metadata={"explainer": result.get("method")},
         )
 
     def _explain_rules(self, input_data: Dict[str, Any]) -> Explanation:

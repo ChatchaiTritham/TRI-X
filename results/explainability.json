@@ -1,0 +1,131 @@
+{
+  "shap": {
+    "available": true,
+    "method": "shap.TreeExplainer(RandomForest)",
+    "n_explained": 300,
+    "global_importance": {
+      "episode_duration_min": 0.07298418232107312,
+      "triage_risk_score": 0.02002692861026107,
+      "continuous_symptoms": 0.019298320929065575,
+      "onset_acute": 0.014633632690978282,
+      "positional_trigger": 0.01380326933809356,
+      "hearing_loss": 0.013457526429790796,
+      "age": 0.012613579793922596,
+      "headache": 0.009881357900407775,
+      "tinnitus": 0.009119543106682433,
+      "focal_neuro_deficit": 0.008021469233674793,
+      "n_vascular_risk_factors": 0.006870424934210407,
+      "head_impulse_normal": 0.006850887738428551,
+      "gait_unsteady_severe": 0.0042158004978022435,
+      "nystagmus_vertical": 0.003987409034626705,
+      "hypertension": 0.0037676805152121206,
+      "nystagmus_direction_changing": 0.003635256513189139,
+      "nausea_vomiting": 0.003624553118422193,
+      "sex_female": 0.0026884052405845276,
+      "skew_deviation": 0.002067174973655726,
+      "diabetes": 0.0018820730660116009,
+      "smoking": 0.0017622138927481281,
+      "prior_stroke": 0.0008771341939959623
+    },
+    "top10": [
+      [
+        "episode_duration_min",
+        0.07298418232107312
+      ],
+      [
+        "triage_risk_score",
+        0.02002692861026107
+      ],
+      [
+        "continuous_symptoms",
+        0.019298320929065575
+      ],
+      [
+        "onset_acute",
+        0.014633632690978282
+      ],
+      [
+        "positional_trigger",
+        0.01380326933809356
+      ],
+      [
+        "hearing_loss",
+        0.013457526429790796
+      ],
+      [
+        "age",
+        0.012613579793922596
+      ],
+      [
+        "headache",
+        0.009881357900407775
+      ],
+      [
+        "tinnitus",
+        0.009119543106682433
+      ],
+      [
+        "focal_neuro_deficit",
+        0.008021469233674793
+      ]
+    ]
+  },
+  "lime": {
+    "available": true,
+    "method": "lime.LimeTabularExplainer (local linear surrogate)",
+    "explained_class": "0",
+    "local_weights": [
+      [
+        "episode_duration_min <= 1.08",
+        0.5406854384808141
+      ],
+      [
+        "0.00 < positional_trigger <= 1.00",
+        0.10814518272103898
+      ],
+      [
+        "continuous_symptoms <= 0.00",
+        0.052663895042697736
+      ],
+      [
+        "onset_acute <= 0.00",
+        0.026246488496483807
+      ],
+      [
+        "smoking > 0.00",
+        -0.01962389973338677
+      ],
+      [
+        "hearing_loss <= 0.00",
+        0.019375808642009086
+      ],
+      [
+        "prior_stroke <= 0.00",
+        0.018984219655300213
+      ],
+      [
+        "42.99 < age <= 53.47",
+        -0.014427604726480664
+      ],
+      [
+        "nausea_vomiting <= 0.00",
+        -0.01324830760517394
+      ],
+      [
+        "nystagmus_vertical <= 0.00",
+        -0.012930146456939016
+      ]
+    ]
+  },
+  "dice": {
+    "available": true,
+    "method": "dice-ml (diverse counterfactual explanations)",
+    "original_class": "BPPV",
+    "n_counterfactuals": 2
+  },
+  "explainers_available": {
+    "shap": true,
+    "lime": true,
+    "dice": true
+  }
+}

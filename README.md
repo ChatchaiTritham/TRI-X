@@ -44,14 +44,14 @@ flowchart LR
 
 ## Data, Results, Charts, And Graphs
 
-The curated visual set is controlled by FIGURE_MANIFEST.csv and currently lists **4** figure entries. The manifest links figure IDs, roles, source scripts, source data, captions, sections, timestamps, and export DPI.
+The curated visual set is controlled by FIGURE_MANIFEST.csv and lists **4** figure entries, all rendered from computed `results/` (no hardcoded numbers).
 
 | ID | Role | PNG | PDF |
 |---|---|---|---|
-| TRIX-F1 | manuscript | `figures\manuscript\fig1_framework_architecture.png` | `figures\manuscript\fig1_framework_architecture.pdf` |
-| TRIX-F2 | manuscript | `figures\manuscript\fig2_performance_targets.png` | `figures\manuscript\fig2_performance_targets.pdf` |
-| TRIX-F3 | manuscript | `figures\manuscript\fig3_validation_gate_status.png` | `figures\manuscript\fig3_validation_gate_status.pdf` |
-| TRIX-F4 | manuscript | `figures\manuscript\fig4_risk_tier_distribution.png` | `figures\manuscript\fig4_risk_tier_distribution.pdf` |
+| TRIX-F1 | results | `figures/manuscript/fig1_diagnostic_accuracy.png` | `figures/manuscript/fig1_diagnostic_accuracy.pdf` |
+| TRIX-F2 | results | `figures/manuscript/fig2_critical_scenario.png` | `figures/manuscript/fig2_critical_scenario.pdf` |
+| TRIX-F3 | results | `figures/manuscript/fig3_shap_importance.png` | `figures/manuscript/fig3_shap_importance.pdf` |
+| TRIX-F4 | data | `figures/manuscript/fig4_cohort_distribution.png` | `figures/manuscript/fig4_cohort_distribution.pdf` |
 
 ## Reproduce
 
@@ -60,10 +60,16 @@ cd D:\PhD-NU\Manuscript\GitHub\TRI-X
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -e .
-python -m pytest -q
+pip install -r requirements.txt
+python scripts/run_all.py                      # compute results/ (seed = 42)
+python scripts/generate_manuscript_figures.py  # render figures from results/
+python scripts/run_validation.py               # convenience: run_all + figures
+python -m pytest -q                            # unit + determinism tests
 ```
 
-If figure-generation scripts are present, run the matching script listed in `FIGURE_MANIFEST.csv` from the repository root.
+All reported metrics are computed on a **synthetic** cohort by `scripts/run_all.py`
+(seed = 42) and reproduce byte-for-byte. See `REPRODUCIBILITY.md` for the full
+claim-by-claim mapping. No real patient data and no human ratings are used.
 
 ## Verification Criteria
 
