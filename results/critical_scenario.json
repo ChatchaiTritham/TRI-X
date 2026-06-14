@@ -1,0 +1,56 @@
+{
+  "central_positive_n": 237,
+  "benign_n": 1263,
+  "hybrid_ensemble": {
+    "tp": 229,
+    "tn": 1220,
+    "fp": 43,
+    "fn": 8,
+    "sensitivity": 0.966245,
+    "specificity": 0.965954,
+    "ppv": 0.841912,
+    "npv": 0.993485,
+    "sensitivity_ci95": [
+      0.941746,
+      0.987342
+    ],
+    "npv_ci95": [
+      0.988599,
+      0.997563
+    ]
+  },
+  "standalone_ml_rf": {
+    "tp": 223,
+    "tn": 1244,
+    "fp": 19,
+    "fn": 14,
+    "sensitivity": 0.940928,
+    "specificity": 0.984956,
+    "ppv": 0.921488,
+    "npv": 0.988871
+  },
+  "rule_based": {
+    "tp": 232,
+    "tn": 643,
+    "fp": 620,
+    "fn": 5,
+    "sensitivity": 0.978903,
+    "specificity": 0.509105,
+    "ppv": 0.2723,
+    "npv": 0.992284
+  },
+  "mcnemar_hybrid_vs_rules": {
+    "b": 578,
+    "c": 4,
+    "chi2": 564.139175257732,
+    "p_value_chi2": 1.057340964260528e-124,
+    "p_value": 6.019666179106582e-166
+  },
+  "mcnemar_hybrid_vs_ml": {
+    "b": 7,
+    "c": 25,
+    "chi2": 9.03125,
+    "p_value_chi2": 0.0026540293594823415,
+    "p_value": 0.0021024015732109547
+  }
+}

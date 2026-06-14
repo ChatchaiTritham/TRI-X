@@ -1,0 +1,43 @@
+{
+  "package": "trix",
+  "pipeline": "trix.empirical (real synthetic-cohort ML pipeline)",
+  "seed": 42,
+  "n_cases": 5000,
+  "data_disclosure": "All data synthetic; no real patient data; no human ratings.",
+  "models_used": [
+    "RandomForest",
+    "XGBoost",
+    "MLP"
+  ],
+  "gradient_model": "XGBoost",
+  "xgboost_available": true,
+  "explainers_available": {
+    "shap": true,
+    "lime": true,
+    "dice": true
+  },
+  "deterministic_outputs": [
+    "results/cohort_distribution.csv",
+    "results/feature_summary.csv",
+    "results/diagnostic_performance.json",
+    "results/critical_scenario.json",
+    "results/explainability.json"
+  ],
+  "non_deterministic_outputs": [
+    "results/latency_summary.json"
+  ],
+  "headline_numbers": {
+    "hybrid_accuracy": 0.796,
+    "hybrid_accuracy_ci95": [
+      0.775333,
+      0.816
+    ],
+    "rule_based_accuracy": 0.345333,
+    "standalone_ml_accuracy": 0.782,
+    "central_sensitivity": 0.966245,
+    "central_npv": 0.993485,
+    "central_specificity": 0.965954,
+    "central_ppv": 0.841912,
+    "latency_s": 0.0293
+  }
+}

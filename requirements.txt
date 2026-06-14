@@ -6,10 +6,12 @@ scipy>=1.7.0
 
 # Machine learning
 scikit-learn>=1.0.0
+xgboost>=1.5.0
 
 # Explainable AI
 shap>=0.40.0
 lime>=0.2.0
+dice-ml>=0.10
 
 # Visualization
 matplotlib>=3.4.0

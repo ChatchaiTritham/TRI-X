@@ -1,15 +1,19 @@
-"""Generate curated manuscript figures for TRI-X.
+"""Generate curated manuscript figures for TRI-X from computed results.
 
-The broad ``outputs/figures`` directory contains complete demo exports. This
-script promotes a compact, article-ready subset into ``figures/manuscript`` and
-splits the dense performance dashboard into readable panels.
+Every panel is derived from ``results/`` produced by ``scripts/run_all.py`` -- no
+performance literal is hardcoded here. Figures read the real numbers computed by the
+empirical pipeline on the documented synthetic cohort.
+
+Run order:
+    python scripts/run_all.py
+    python scripts/generate_manuscript_figures.py
 """
 
 from __future__ import annotations
 
 import argparse
 import csv
-import shutil
+import json
 from datetime import datetime
 from pathlib import Path
 
@@ -17,40 +21,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image, ImageDraw
 
-
 ROOT = Path(__file__).resolve().parents[1]
+RESULTS_DIR = ROOT / "results"
 DEFAULT_OUTPUT_DIR = ROOT / "figures" / "manuscript"
 DEFAULT_MANIFEST = ROOT / "FIGURE_MANIFEST.csv"
 DPI = 600
 
-METRICS = {
-    "Critical alert\ndetection": 98.0,
-    "Safety boundary\nviolations": 0.0,
-    "Guideline\nalignment": 100.0,
-    "TiTrATE\ncompliance": 96.5,
-    "ESI triage\naccuracy": 95.2,
-    "Red-flag\ndetection": 100.0,
-    "Explanation\nconsistency": 92.0,
-}
-
-TARGETS = {
-    "Critical alert\ndetection": 95.0,
-    "Safety boundary\nviolations": 0.0,
-    "Guideline\nalignment": 95.0,
-    "TiTrATE\ncompliance": 90.0,
-    "ESI triage\naccuracy": 90.0,
-    "Red-flag\ndetection": 95.0,
-    "Explanation\nconsistency": 85.0,
-}
-
 COLORS = {
-    "safe": "#2ca25f",
-    "monitor": "#fdd049",
-    "alert": "#fdae61",
-    "critical": "#de2d26",
-    "emergency": "#54278f",
-    "blue": "#2b6cb0",
-    "orange": "#dd6b20",
+    "hybrid": "#0f3460",
+    "ml": "#2b6cb0",
+    "rules": "#dd6b20",
+    "central": "#de2d26",
+    "benign": "#2ca25f",
     "gray": "#4a5568",
 }
 
@@ -78,6 +60,18 @@ def configure_plotting() -> None:
     )
 
 
+def require_results() -> None:
+    if not (RESULTS_DIR / "manifest.json").exists():
+        raise SystemExit(
+            "results/ not found. Run 'python scripts/run_all.py' first to compute "
+            "the data these figures are built from."
+        )
+
+
+def load_json(name: str) -> dict:
+    return json.loads((RESULTS_DIR / name).read_text(encoding="utf-8"))
+
+
 def save_figure(fig: plt.Figure, output_dir: Path, stem: str) -> tuple[Path, Path]:
     png_path = output_dir / f"{stem}.png"
     pdf_path = output_dir / f"{stem}.pdf"
@@ -87,122 +81,151 @@ def save_figure(fig: plt.Figure, output_dir: Path, stem: str) -> tuple[Path, Pat
     return png_path, pdf_path
 
 
-def copy_pair(source_stem: str, output_dir: Path, target_stem: str) -> tuple[Path, Path]:
-    source_dir = ROOT / "outputs" / "figures"
-    png_source = source_dir / f"{source_stem}.png"
-    pdf_source = source_dir / f"{source_stem}.pdf"
-    png_target = output_dir / f"{target_stem}.png"
-    pdf_target = output_dir / f"{target_stem}.pdf"
-    shutil.copy2(png_source, png_target)
-    shutil.copy2(pdf_source, pdf_target)
-    return png_target, pdf_target
+def figure1_accuracy(output_dir: Path) -> dict[str, str]:
+    diag = load_json("diagnostic_performance.json")
+    labels = ["TRI-X\n(Hybrid)", "Standalone\nML (RF)", "Rule-based"]
+    keys = ["hybrid_ensemble", "standalone_ml_rf", "rule_based"]
+    accs = [diag[k]["accuracy"] * 100 for k in keys]
+    cis = [diag[k]["accuracy_ci95"] for k in keys]
+    err = [[a - c[0] * 100 for a, c in zip(accs, cis)],
+           [c[1] * 100 - a for a, c in zip(accs, cis)]]
+    colors = [COLORS["hybrid"], COLORS["ml"], COLORS["rules"]]
 
+    fig, ax = plt.subplots(figsize=(6.4, 4.4))
+    bars = ax.bar(labels, accs, color=colors, yerr=err, capsize=5,
+                  edgecolor="#1a202c", linewidth=0.6)
+    for bar, a in zip(bars, accs):
+        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 1.5,
+                f"{a:.1f}%", ha="center", va="bottom", fontsize=9, fontweight="bold")
+    ax.set_ylabel("Multiclass diagnostic accuracy (%)")
+    ax.set_title(f"Diagnostic accuracy on held-out synthetic test set (n={diag['test_n']})")
+    ax.set_ylim(0, 105)
+    ax.grid(axis="y")
+    ax.spines[["top", "right"]].set_visible(False)
+    fig.tight_layout()
 
-def figure1_architecture(output_dir: Path) -> dict[str, str]:
-    png_path, pdf_path = copy_pair("fig2_framework_architecture", output_dir, "fig1_framework_architecture")
+    png_path, pdf_path = save_figure(fig, output_dir, "fig1_diagnostic_accuracy")
     return {
         "figure_id": "TRIX-F1",
-        "role": "manuscript",
+        "role": "results",
         "png": str(png_path.relative_to(ROOT)),
         "pdf": str(pdf_path.relative_to(ROOT)),
         "source_script": "scripts/generate_manuscript_figures.py",
-        "source_data": "outputs/figures/fig2_framework_architecture.png; outputs/figures/fig2_framework_architecture.pdf",
-        "caption": "TRI-X framework architecture linking triage, TiTrATE reasoning, SRGL governance, and XAI output.",
-        "article_section": "Framework architecture",
+        "source_data": "results/diagnostic_performance.json",
+        "caption": "Multiclass diagnostic accuracy with bootstrap 95% CIs (synthetic test set).",
+        "article_section": "Results",
     }
 
 
-def figure2_performance_bar(output_dir: Path) -> dict[str, str]:
-    labels = list(METRICS.keys())
-    actual = np.array(list(METRICS.values()))
-    target = np.array([TARGETS[label] for label in labels])
-    x = np.arange(len(labels))
-    width = 0.38
+def figure2_critical(output_dir: Path) -> dict[str, str]:
+    crit = load_json("critical_scenario.json")
+    keys = ["hybrid_ensemble", "standalone_ml_rf", "rule_based"]
+    labels = ["TRI-X (Hybrid)", "Standalone ML", "Rule-based"]
+    metrics = ["sensitivity", "specificity", "ppv", "npv"]
+    metric_labels = ["Sensitivity", "Specificity", "PPV", "NPV"]
+    x = np.arange(len(metrics))
+    width = 0.26
+    colors = [COLORS["hybrid"], COLORS["ml"], COLORS["rules"]]
 
-    fig, ax = plt.subplots(figsize=(8.2, 4.8))
-    ax.bar(x - width / 2, actual, width, label="Achieved", color=COLORS["blue"])
-    ax.bar(x + width / 2, target, width, label="Target", color=COLORS["orange"])
-    ax.set_ylabel("Performance (%)")
-    ax.set_title("A. Achieved vs target TRI-X performance")
+    fig, ax = plt.subplots(figsize=(7.4, 4.4))
+    for i, (k, lab) in enumerate(zip(keys, labels)):
+        vals = [crit[k][m] * 100 for m in metrics]
+        ax.bar(x + (i - 1) * width, vals, width, label=lab, color=colors[i],
+               edgecolor="#1a202c", linewidth=0.5)
     ax.set_xticks(x)
-    ax.set_xticklabels(labels, rotation=30, ha="right")
+    ax.set_xticklabels(metric_labels)
+    ax.set_ylabel("Score (%)")
     ax.set_ylim(0, 110)
+    ax.set_title(
+        f"Critical scenario detection: central/dangerous vs benign "
+        f"(positives n={crit['central_positive_n']})"
+    )
+    ax.legend(frameon=False, ncol=3, loc="upper center", bbox_to_anchor=(0.5, -0.12))
     ax.grid(axis="y")
-    ax.legend(loc="upper right")
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
+    ax.spines[["top", "right"]].set_visible(False)
     fig.tight_layout()
 
-    png_path, pdf_path = save_figure(fig, output_dir, "fig2_performance_targets")
+    png_path, pdf_path = save_figure(fig, output_dir, "fig2_critical_scenario")
     return {
         "figure_id": "TRIX-F2",
-        "role": "manuscript",
+        "role": "results",
         "png": str(png_path.relative_to(ROOT)),
         "pdf": str(pdf_path.relative_to(ROOT)),
         "source_script": "scripts/generate_manuscript_figures.py",
-        "source_data": "examples/trix_visualizations.py:create_performance_dashboard_2d",
-        "caption": "Focused achieved-versus-target performance panel split from the dense TRI-X dashboard.",
-        "article_section": "Performance validation",
+        "source_data": "results/critical_scenario.json",
+        "caption": "Stroke/TIA detection sensitivity, specificity, PPV and NPV across methods.",
+        "article_section": "Results",
     }
 
 
-def figure3_validation_status(output_dir: Path) -> dict[str, str]:
-    labels = list(METRICS.keys())
-    passed = [METRICS[label] >= TARGETS[label] for label in labels]
-    y = np.arange(len(labels))
-    colors = [COLORS["safe"] if ok else COLORS["critical"] for ok in passed]
+def figure3_shap(output_dir: Path) -> dict[str, str]:
+    expl = load_json("explainability.json")
+    top = expl["shap"]["top10"][::-1]
+    names = [t[0] for t in top]
+    vals = [t[1] for t in top]
 
-    fig, ax = plt.subplots(figsize=(7.0, 4.8))
-    ax.barh(y, [1] * len(labels), color=colors, edgecolor="#2d3748", linewidth=0.5)
-    ax.set_yticks(y)
-    ax.set_yticklabels(labels)
-    ax.set_xticks([])
-    ax.set_xlim(0, 1)
-    ax.set_title("B. Validation gate status")
-    for index, ok in enumerate(passed):
-        ax.text(0.5, index, "PASS" if ok else "REVIEW", va="center", ha="center", color="white", fontweight="bold")
-    ax.spines[["top", "right", "bottom", "left"]].set_visible(False)
+    fig, ax = plt.subplots(figsize=(6.6, 4.6))
+    ax.barh(names, vals, color=COLORS["hybrid"], edgecolor="#1a202c", linewidth=0.5)
+    ax.set_xlabel("Mean |SHAP value|")
+    ax.set_title("Global feature importance (SHAP, Random Forest)")
+    ax.grid(axis="x")
+    ax.spines[["top", "right"]].set_visible(False)
     fig.tight_layout()
 
-    png_path, pdf_path = save_figure(fig, output_dir, "fig3_validation_gate_status")
+    png_path, pdf_path = save_figure(fig, output_dir, "fig3_shap_importance")
     return {
         "figure_id": "TRIX-F3",
-        "role": "manuscript",
+        "role": "results",
         "png": str(png_path.relative_to(ROOT)),
         "pdf": str(pdf_path.relative_to(ROOT)),
         "source_script": "scripts/generate_manuscript_figures.py",
-        "source_data": "examples/trix_visualizations.py:create_performance_dashboard_2d",
-        "caption": "Readable validation-gate status panel replacing the compressed dashboard table.",
-        "article_section": "Validation results",
+        "source_data": "results/explainability.json",
+        "caption": "Top-10 global feature importance from genuine SHAP TreeExplainer attributions.",
+        "article_section": "Results",
     }
 
 
-def figure4_risk_distribution(output_dir: Path) -> dict[str, str]:
-    png_path, pdf_path = copy_pair("fig5_risk_tier_distribution", output_dir, "fig4_risk_tier_distribution")
+def figure4_cohort(output_dir: Path) -> dict[str, str]:
+    rows = list(csv.DictReader((RESULTS_DIR / "cohort_distribution.csv").open(encoding="utf-8")))
+    rows = sorted(rows, key=lambda r: int(r["count"]), reverse=True)
+    labels = [r["diagnosis"] for r in rows]
+    counts = [int(r["count"]) for r in rows]
+    colors = [COLORS["central"] if r["group"] == "central_dangerous" else COLORS["benign"] for r in rows]
+    total = sum(counts)
+
+    fig, ax = plt.subplots(figsize=(7.6, 4.6))
+    ax.bar(labels, counts, color=colors, edgecolor="#1a202c", linewidth=0.5)
+    ax.set_ylabel("Synthetic cases (n)")
+    ax.set_title(f"Synthetic cohort diagnosis distribution (n={total})")
+    ax.tick_params(axis="x", rotation=40)
+    for lab in ax.get_xticklabels():
+        lab.set_ha("right")
+    ax.grid(axis="y")
+    ax.spines[["top", "right"]].set_visible(False)
+    handles = [
+        plt.Rectangle((0, 0), 1, 1, color=COLORS["central"]),
+        plt.Rectangle((0, 0), 1, 1, color=COLORS["benign"]),
+    ]
+    ax.legend(handles, ["Central / dangerous", "Benign peripheral"], frameon=False)
+    fig.tight_layout()
+
+    png_path, pdf_path = save_figure(fig, output_dir, "fig4_cohort_distribution")
     return {
         "figure_id": "TRIX-F4",
-        "role": "manuscript",
+        "role": "data",
         "png": str(png_path.relative_to(ROOT)),
         "pdf": str(pdf_path.relative_to(ROOT)),
         "source_script": "scripts/generate_manuscript_figures.py",
-        "source_data": "outputs/figures/fig5_risk_tier_distribution.png; outputs/figures/fig5_risk_tier_distribution.pdf",
-        "caption": "Risk-tier distribution for the TRI-X validation cohort.",
-        "article_section": "Risk stratification",
+        "source_data": "results/cohort_distribution.csv",
+        "caption": "Diagnosis distribution of the synthetic ED vestibular triage cohort.",
+        "article_section": "Methods",
     }
 
 
 def write_manifest(rows: list[dict[str, str]], manifest_path: Path) -> None:
     fieldnames = [
-        "figure_id",
-        "role",
-        "png",
-        "pdf",
-        "source_script",
-        "source_data",
-        "caption",
-        "article_section",
-        "generated_at",
-        "dpi",
+        "figure_id", "role", "png", "pdf", "source_script", "source_data",
+        "caption", "article_section", "generated_at", "dpi",
     ]
     generated_at = datetime.now().isoformat(timespec="seconds")
     with manifest_path.open("w", newline="", encoding="utf-8") as handle:
@@ -226,10 +249,9 @@ def make_contact_sheet(output_dir: Path) -> Path:
             draw.text((8, 8), path.name, fill="black")
             draw.text((8, 378), f"{original[0]}x{original[1]}", fill="black")
             thumbs.append(canvas)
-
     cols = 2
     rows = (len(thumbs) + cols - 1) // cols
-    sheet = Image.new("RGB", (cols * 540, rows * 405), "white")
+    sheet = Image.new("RGB", (cols * 540, max(rows, 1) * 405), "white")
     for index, thumb in enumerate(thumbs):
         sheet.paste(thumb, ((index % cols) * 540, (index // cols) * 405))
     sheet_path = output_dir / "visual_qa_contact_sheet.png"
@@ -238,18 +260,19 @@ def make_contact_sheet(output_dir: Path) -> Path:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Generate curated TRI-X manuscript figures")
+    parser = argparse.ArgumentParser(description="Generate curated TRI-X figures from results/")
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     args = parser.parse_args()
 
+    require_results()
     configure_plotting()
     args.output_dir.mkdir(parents=True, exist_ok=True)
     rows = [
-        figure1_architecture(args.output_dir),
-        figure2_performance_bar(args.output_dir),
-        figure3_validation_status(args.output_dir),
-        figure4_risk_distribution(args.output_dir),
+        figure1_accuracy(args.output_dir),
+        figure2_critical(args.output_dir),
+        figure3_shap(args.output_dir),
+        figure4_cohort(args.output_dir),
     ]
     write_manifest(rows, args.manifest)
     sheet_path = make_contact_sheet(args.output_dir)
