@@ -1,54 +1,45 @@
 #!/usr/bin/env python3
-"""
-TRI-X Framework Structural Visualizations
+"""TRI-X Framework figures (manuscript scope -- JIIS).
 
-Generates manuscript-preparation STRUCTURAL diagrams only:
-- SRGL Logic Flow Diagram (fig1)
-- Framework Architecture (fig2)
+Two kinds of figure, all routed through the shared ``pubviz`` toolkit:
 
-These figures contain no quantitative claims; they hardcode only box/arrow
-layout coordinates. Quantitative figures rendered from computed ``results/`` are
-produced by ``scripts/generate_manuscript_figures.py`` instead. Panels that have
-no computed source (performance dashboard, 3D performance grid, XAI-method
-comparison, decision-time analysis) are intentionally not rendered here; see
-REPRODUCIBILITY.md for the manuscript-vs-code gap.
+Schematic (no quantitative claims; box/arrow layout coordinates only):
+  - fig1_srgl_flow_diagram        SRGL three-gate logic flow
+  - fig2_framework_architecture   Triage-TiTrATE-XAI architecture
+
+Data-driven decision-behaviour charts (the JIIS paper's core safety/governance
+metrics, read from ``results/framework/`` -- never hardcoded):
+  - fig3_safety_gate_compliance   escalation compliance / missed red flags
+  - fig4_missingness_stability    routing stability when input fields drop
+
+The exploratory ML effectiveness panels (accuracy/sensitivity/SHAP) are
+SUPPLEMENTARY and live in ``experimental/effectiveness/`` -- outside this
+manuscript's scope. Run ``python scripts/run_framework.py`` first to populate
+``results/framework/``.
 
 Author: Chatchai Tritham
 Date: 2026-01-28
 """
 
-import matplotlib as mpl
+import sys
+import warnings
+from pathlib import Path
+
 import matplotlib.pyplot as plt
-from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
 import matplotlib.patches as mpatches
 
-import warnings
+# Vendor the shared toolkit next to this script so the import works from any cwd.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from pubviz import (  # noqa: E402
+    apply_pub_style,
+    save_fig,
+    PALETTE,
+    add_box,
+    arrow,
+    load_results,
+)
 
 warnings.filterwarnings('ignore')
-
-# Canonical Top-Tier figure style (shared across all PhD repos; see
-# _management/FIGURE_STYLE.md). Color-blind-safe Okabe-Ito palette, used in order.
-PALETTE = ["#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#000000"]
-
-
-def apply_pub_style():
-    """Apply the shared publication rcParams + Okabe-Ito cycler. Call once."""
-    mpl.rcParams.update({
-        "figure.dpi": 150, "savefig.dpi": 300, "savefig.bbox": "tight",
-        "savefig.pad_inches": 0.02,
-        "font.family": "serif",
-        "font.serif": ["Times New Roman", "Times", "DejaVu Serif"],
-        "mathtext.fontset": "stix",
-        "font.size": 10, "axes.titlesize": 11, "axes.labelsize": 10,
-        "xtick.labelsize": 9, "ytick.labelsize": 9, "legend.fontsize": 9,
-        "axes.spines.top": False, "axes.spines.right": False,
-        "axes.linewidth": 0.8, "axes.grid": True,
-        "grid.alpha": 0.3, "grid.linewidth": 0.6,
-        "lines.linewidth": 1.6, "lines.markersize": 5,
-        "legend.frameon": False, "figure.constrained_layout.use": True,
-        "axes.prop_cycle": mpl.cycler(color=PALETTE),
-    })
-
 
 # Semantic role -> Okabe-Ito palette colour (consistent across every figure/repo).
 COLORS = {
@@ -67,881 +58,346 @@ COLORS = {
 
 
 def create_srgl_flow_diagram(output_dir='outputs/figures'):
-    """
-    Figure 1: SRGL Logic Flow Diagram
-    Shows the three-gate sequential screening process.
+    """Figure 1: SRGL three-gate sequential screening logic.
 
-    Structural diagram only: hardcodes box/arrow layout coordinates, no numbers.
+    Structural diagram only: box/arrow layout coordinates, no numbers.
     """
     fig, ax = plt.subplots(figsize=(12, 10))
     ax.set_xlim(0, 10)
     ax.set_ylim(0, 12)
     ax.axis('off')
 
-    # Title
-    ax.text(
-        5,
-        11.5,
-        'Screening-First Risk Governance Logic (SRGL)',
-        ha='center',
-        va='top',
-        fontsize=16,
-        fontweight='bold',
-    )
+    ax.text(5, 11.5, 'Screening-First Risk Governance Logic (SRGL)',
+            ha='center', va='top', fontsize=16, fontweight='bold')
 
-    # Input box
-    input_box = FancyBboxPatch(
-        (3.5, 10),
-        3,
-        0.8,
-        boxstyle="round,pad=0.1",
-        edgecolor='black',
-        facecolor='#E8E8E8',
-        linewidth=2,
-    )
-    ax.add_patch(input_box)
-    ax.text(
-        5,
-        10.4,
-        'Patient Input\n(Demographics, Symptoms, Vitals)',
-        ha='center',
-        va='center',
-        fontsize=10,
-        fontweight='bold',
-    )
+    # Input
+    add_box(ax, (3.5, 10), 3, 0.8,
+            'Patient Input\n(Demographics, Symptoms, Vitals)',
+            facecolor='#E8E8E8', edgecolor='black', size=10)
+    arrow(ax, (5, 10), (5, 9.0), color='black', lw=2)
 
-    # Arrow to Gate 1
-    arrow1 = FancyArrowPatch(
-        (5, 10),
-        (5, 9.2),
-        arrowstyle='->',
-        mutation_scale=20,
-        linewidth=2,
-        color='black',
-    )
-    ax.add_patch(arrow1)
+    # Gate G1: Critical Red Flags
+    add_box(ax, (2, 7.5), 6, 1.5,
+            'Gate G1: Critical Red Flag Screening\n\n'
+            'Focal weakness | Thunderclap headache | Acute hearing loss\n'
+            'Diplopia | Dysarthria | Severe ataxia',
+            facecolor='#FFE5E5', edgecolor=COLORS['gate1'], size=10)
+    add_box(ax, (4.2, 6.8), 1.6, 0.5, 'Red Flag\nDetected?',
+            facecolor='#FFF9E5', edgecolor='black', size=9)
 
-    # Gate 1: Critical Red Flags
-    gate1_box = FancyBboxPatch(
-        (2, 7.5),
-        6,
-        1.5,
-        boxstyle="round,pad=0.1",
-        edgecolor=COLORS['gate1'],
-        facecolor='#FFE5E5',
-        linewidth=3,
-    )
-    ax.add_patch(gate1_box)
-    ax.text(
-        5,
-        8.7,
-        'Gate G1: Critical Red Flag Screening',
-        ha='center',
-        va='center',
-        fontsize=12,
-        fontweight='bold',
-        color=COLORS['gate1'],
-    )
-    ax.text(
-        5,
-        8.2,
-        'Focal weakness | Thunderclap headache | Acute hearing loss\n'
-        'Diplopia | Dysarthria | Severe ataxia',
-        ha='center',
-        va='center',
-        fontsize=9,
-    )
+    # YES -> R1/R2
+    arrow(ax, (6, 7.05), (7.5, 7.05), color=COLORS['danger'], lw=2)
+    ax.text(6.7, 7.35, 'YES', fontsize=9, fontweight='bold', color=COLORS['danger'])
+    add_box(ax, (7.5, 6.5), 1.8, 1,
+            'R1/R2\nCritical/High Risk\nImmediate Care',
+            facecolor='#FFE5E5', edgecolor=COLORS['danger'], size=9)
 
-    # Decision diamond for Gate 1
-    decision1 = mpatches.FancyBboxPatch(
-        (4.2, 6.8),
-        1.6,
-        0.5,
-        boxstyle="round,pad=0.05",
-        edgecolor='black',
-        facecolor='#FFF9E5',
-        linewidth=2,
-        transform=ax.transData,
-    )
-    ax.add_patch(decision1)
-    ax.text(
-        5,
-        7.05,
-        'Red Flag\nDetected?',
-        ha='center',
-        va='center',
-        fontsize=9,
-        fontweight='bold',
-    )
-
-    # YES path (Red Flag detected) -> R1/R2
-    arrow_yes1 = FancyArrowPatch(
-        (6, 7),
-        (7.5, 7),
-        arrowstyle='->',
-        mutation_scale=15,
-        linewidth=2,
-        color=COLORS['danger'],
-    )
-    ax.add_patch(arrow_yes1)
-    ax.text(6.7, 7.3, 'YES', fontsize=9, fontweight='bold', color=COLORS['danger'])
-
-    # R1/R2 outcome box
-    outcome_r1 = FancyBboxPatch(
-        (7.5, 6.5),
-        1.8,
-        1,
-        boxstyle="round,pad=0.1",
-        edgecolor=COLORS['danger'],
-        facecolor='#FFE5E5',
-        linewidth=2,
-    )
-    ax.add_patch(outcome_r1)
-    ax.text(
-        8.4,
-        7.3,
-        'R1/R2',
-        ha='center',
-        va='center',
-        fontsize=11,
-        fontweight='bold',
-        color=COLORS['danger'],
-    )
-    ax.text(
-        8.4,
-        6.85,
-        'Critical/High Risk\nImmediate Care',
-        ha='center',
-        va='center',
-        fontsize=8,
-    )
-
-    # NO path -> Gate 2
-    arrow_no1 = FancyArrowPatch(
-        (5, 6.8),
-        (5, 6.0),
-        arrowstyle='->',
-        mutation_scale=15,
-        linewidth=2,
-        color='black',
-    )
-    ax.add_patch(arrow_no1)
+    # NO -> Gate G2
+    arrow(ax, (5, 6.8), (5, 6.0), color='black', lw=2)
     ax.text(5.3, 6.4, 'NO', fontsize=9, fontweight='bold')
 
-    # Gate 2: Risk Factor Assessment
-    gate2_box = FancyBboxPatch(
-        (2, 4.5),
-        6,
-        1.3,
-        boxstyle="round,pad=0.1",
-        edgecolor=COLORS['gate2'],
-        facecolor='#FFF4E5',
-        linewidth=3,
-    )
-    ax.add_patch(gate2_box)
-    ax.text(
-        5,
-        5.5,
-        'Gate G2: Risk Factor Assessment',
-        ha='center',
-        va='center',
-        fontsize=12,
-        fontweight='bold',
-        color=COLORS['gate2'],
-    )
-    ax.text(
-        5,
-        5.0,
-        'Age >65 | Hypertension | Diabetes | CVD | Atrial fibrillation\n'
-        'Previous stroke/TIA | Vascular risk factors',
-        ha='center',
-        va='center',
-        fontsize=9,
-    )
+    # Gate G2: Risk Factor Assessment
+    add_box(ax, (2, 4.5), 6, 1.3,
+            'Gate G2: Risk Factor Assessment\n\n'
+            'Age >65 | Hypertension | Diabetes | CVD | Atrial fibrillation\n'
+            'Previous stroke/TIA | Vascular risk factors',
+            facecolor='#FFF4E5', edgecolor=COLORS['gate2'], size=10)
+    add_box(ax, (4.2, 3.8), 1.6, 0.5, 'High Risk\nFactors?',
+            facecolor='#FFF9E5', edgecolor='black', size=9)
 
-    # Decision diamond for Gate 2
-    decision2 = mpatches.FancyBboxPatch(
-        (4.2, 3.8),
-        1.6,
-        0.5,
-        boxstyle="round,pad=0.05",
-        edgecolor='black',
-        facecolor='#FFF9E5',
-        linewidth=2,
-        transform=ax.transData,
-    )
-    ax.add_patch(decision2)
-    ax.text(
-        5,
-        4.05,
-        'High Risk\nFactors?',
-        ha='center',
-        va='center',
-        fontsize=9,
-        fontweight='bold',
-    )
+    # YES -> R2/R3
+    arrow(ax, (6, 4.05), (7.5, 4.05), color=COLORS['warning'], lw=2)
+    ax.text(6.7, 4.35, 'YES', fontsize=9, fontweight='bold', color=COLORS['warning'])
+    add_box(ax, (7.5, 3.5), 1.8, 1,
+            'R2/R3\nHigh/Moderate Risk\nUrgent Evaluation',
+            facecolor='#FFF9E5', edgecolor=COLORS['warning'], size=9)
 
-    # YES path (High risk) -> R2/R3
-    arrow_yes2 = FancyArrowPatch(
-        (6, 4),
-        (7.5, 4),
-        arrowstyle='->',
-        mutation_scale=15,
-        linewidth=2,
-        color=COLORS['warning'],
-    )
-    ax.add_patch(arrow_yes2)
-    ax.text(6.7, 4.3, 'YES', fontsize=9, fontweight='bold', color=COLORS['warning'])
-
-    # R2/R3 outcome box
-    outcome_r2 = FancyBboxPatch(
-        (7.5, 3.5),
-        1.8,
-        1,
-        boxstyle="round,pad=0.1",
-        edgecolor=COLORS['warning'],
-        facecolor='#FFF9E5',
-        linewidth=2,
-    )
-    ax.add_patch(outcome_r2)
-    ax.text(
-        8.4,
-        4.3,
-        'R2/R3',
-        ha='center',
-        va='center',
-        fontsize=11,
-        fontweight='bold',
-        color=COLORS['warning'],
-    )
-    ax.text(
-        8.4,
-        3.85,
-        'High/Moderate Risk\nUrgent Evaluation',
-        ha='center',
-        va='center',
-        fontsize=8,
-    )
-
-    # NO path -> Gate 3
-    arrow_no2 = FancyArrowPatch(
-        (5, 3.8),
-        (5, 3.0),
-        arrowstyle='->',
-        mutation_scale=15,
-        linewidth=2,
-        color='black',
-    )
-    ax.add_patch(arrow_no2)
+    # NO -> Gate G3
+    arrow(ax, (5, 3.8), (5, 3.0), color='black', lw=2)
     ax.text(5.3, 3.4, 'NO', fontsize=9, fontweight='bold')
 
-    # Gate 3: Uncertainty Quantification
-    gate3_box = FancyBboxPatch(
-        (2, 1.5),
-        6,
-        1.3,
-        boxstyle="round,pad=0.1",
-        edgecolor=COLORS['gate3'],
-        facecolor='#E5F2FF',
-        linewidth=3,
-    )
-    ax.add_patch(gate3_box)
-    ax.text(
-        5,
-        2.5,
-        'Gate G3: Uncertainty Quantification',
-        ha='center',
-        va='center',
-        fontsize=12,
-        fontweight='bold',
-        color=COLORS['gate3'],
-    )
-    ax.text(
-        5,
-        2.0,
-        'Symptom clarity | Diagnosis confidence | Temporal pattern consistency\n'
-        'Vital sign stability | Comorbidity complexity',
-        ha='center',
-        va='center',
-        fontsize=9,
-    )
+    # Gate G3: Uncertainty Quantification
+    add_box(ax, (2, 1.5), 6, 1.3,
+            'Gate G3: Uncertainty Quantification\n\n'
+            'Symptom clarity | Diagnosis confidence | Temporal pattern consistency\n'
+            'Vital sign stability | Comorbidity complexity',
+            facecolor='#E5F2FF', edgecolor=COLORS['gate3'], size=10)
+    add_box(ax, (4.2, 0.8), 1.6, 0.5, 'High\nUncertainty?',
+            facecolor='#FFF9E5', edgecolor='black', size=9)
 
-    # Decision diamond for Gate 3
-    decision3 = mpatches.FancyBboxPatch(
-        (4.2, 0.8),
-        1.6,
-        0.5,
-        boxstyle="round,pad=0.05",
-        edgecolor='black',
-        facecolor='#FFF9E5',
-        linewidth=2,
-        transform=ax.transData,
-    )
-    ax.add_patch(decision3)
-    ax.text(
-        5,
-        1.05,
-        'High\nUncertainty?',
-        ha='center',
-        va='center',
-        fontsize=9,
-        fontweight='bold',
-    )
+    # YES -> R3
+    arrow(ax, (6, 1.05), (7.5, 1.05), color=COLORS['info'], lw=2)
+    ax.text(6.7, 1.35, 'YES', fontsize=9, fontweight='bold', color=COLORS['info'])
+    add_box(ax, (7.5, 0.5), 1.8, 1, 'R3\nModerate Risk\nObservation',
+            facecolor='#E5F2FF', edgecolor=COLORS['info'], size=9)
 
-    # YES path (High uncertainty) -> R3
-    arrow_yes3 = FancyArrowPatch(
-        (6, 1),
-        (7.5, 1),
-        arrowstyle='->',
-        mutation_scale=15,
-        linewidth=2,
-        color=COLORS['info'],
-    )
-    ax.add_patch(arrow_yes3)
-    ax.text(6.7, 1.3, 'YES', fontsize=9, fontweight='bold', color=COLORS['info'])
+    # NO -> R4/R5
+    arrow(ax, (4.2, 1.05), (2.5, 1.05), color=COLORS['success'], lw=2)
+    ax.text(3.3, 1.35, 'NO', fontsize=9, fontweight='bold', color=COLORS['success'])
+    add_box(ax, (0.7, 0.5), 1.8, 1, 'R4/R5\nLow/Minimal Risk\nOutpatient Care',
+            facecolor='#E5F9F0', edgecolor=COLORS['success'], size=9)
 
-    # R3 outcome box
-    outcome_r3 = FancyBboxPatch(
-        (7.5, 0.5),
-        1.8,
-        1,
-        boxstyle="round,pad=0.1",
-        edgecolor=COLORS['info'],
-        facecolor='#E5F2FF',
-        linewidth=2,
-    )
-    ax.add_patch(outcome_r3)
-    ax.text(
-        8.4,
-        1.3,
-        'R3',
-        ha='center',
-        va='center',
-        fontsize=11,
-        fontweight='bold',
-        color=COLORS['info'],
-    )
-    ax.text(
-        8.4, 0.85, 'Moderate Risk\nObservation', ha='center', va='center', fontsize=8
-    )
-
-    # NO path -> R4/R5
-    arrow_no3 = FancyArrowPatch(
-        (4, 1),
-        (2.5, 1),
-        arrowstyle='->',
-        mutation_scale=15,
-        linewidth=2,
-        color=COLORS['success'],
-    )
-    ax.add_patch(arrow_no3)
-    ax.text(3.3, 1.3, 'NO', fontsize=9, fontweight='bold', color=COLORS['success'])
-
-    # R4/R5 outcome box
-    outcome_r4 = FancyBboxPatch(
-        (0.7, 0.5),
-        1.8,
-        1,
-        boxstyle="round,pad=0.1",
-        edgecolor=COLORS['success'],
-        facecolor='#E5F9F0',
-        linewidth=2,
-    )
-    ax.add_patch(outcome_r4)
-    ax.text(
-        1.6,
-        1.3,
-        'R4/R5',
-        ha='center',
-        va='center',
-        fontsize=11,
-        fontweight='bold',
-        color=COLORS['success'],
-    )
-    ax.text(
-        1.6,
-        0.85,
-        'Low/Minimal Risk\nOutpatient Care',
-        ha='center',
-        va='center',
-        fontsize=8,
-    )
-
-    # Legend
     legend_elements = [
-        mpatches.Patch(
-            facecolor='#FFE5E5',
-            edgecolor=COLORS['gate1'],
-            label='Gate G1: Critical Screening',
-            linewidth=2,
-        ),
-        mpatches.Patch(
-            facecolor='#FFF4E5',
-            edgecolor=COLORS['gate2'],
-            label='Gate G2: Risk Assessment',
-            linewidth=2,
-        ),
-        mpatches.Patch(
-            facecolor='#E5F2FF',
-            edgecolor=COLORS['gate3'],
-            label='Gate G3: Uncertainty Check',
-            linewidth=2,
-        ),
+        mpatches.Patch(facecolor='#FFE5E5', edgecolor=COLORS['gate1'],
+                       label='Gate G1: Critical Screening', linewidth=2),
+        mpatches.Patch(facecolor='#FFF4E5', edgecolor=COLORS['gate2'],
+                       label='Gate G2: Risk Assessment', linewidth=2),
+        mpatches.Patch(facecolor='#E5F2FF', edgecolor=COLORS['gate3'],
+                       label='Gate G3: Uncertainty Check', linewidth=2),
     ]
-    ax.legend(
-        handles=legend_elements, loc='lower left', fontsize=9, frameon=True, shadow=True
-    )
+    ax.legend(handles=legend_elements, loc='lower left', fontsize=9,
+              frameon=True, shadow=True)
 
-    # Save figure (vector PDF + 300-dpi PNG via shared rcParams)
-    plt.savefig(f'{output_dir}/fig1_srgl_flow_diagram.png', bbox_inches='tight')
-    plt.savefig(f'{output_dir}/fig1_srgl_flow_diagram.pdf', bbox_inches='tight')
-    print("[OK] Saved: fig1_srgl_flow_diagram.png/pdf")
-    plt.close()
+    save_fig(fig, 'fig1_srgl_flow_diagram', output_dir)
+    plt.close(fig)
 
 
 def create_framework_architecture(output_dir='outputs/figures'):
-    """
-    Figure 2: TRI-X Framework Architecture
-    Shows the complete system architecture with all components.
+    """Figure 2: TRI-X framework architecture.
 
-    Structural diagram only: hardcodes box/arrow layout coordinates, no numbers.
+    Structural diagram only: box/arrow layout coordinates, no numbers.
     """
     fig, ax = plt.subplots(figsize=(14, 10))
     ax.set_xlim(0, 14)
-    ax.set_ylim(0, 10)
+    ax.set_ylim(0, 11)
     ax.axis('off')
 
-    # Title
-    ax.text(
-        7,
-        9.5,
-        'TRI-X Framework Architecture',
-        ha='center',
-        va='top',
-        fontsize=18,
-        fontweight='bold',
-    )
+    ax.text(7, 10.8, 'TRI-X Framework Architecture',
+            ha='center', va='top', fontsize=18, fontweight='bold')
+
+    # Patient input (top)
+    add_box(ax, (4.5, 9.8), 5, 0.8,
+            'PATIENT INPUT: Demographics, Symptoms, Vitals, Medical History',
+            facecolor='#E8E8E8', edgecolor='black', size=11)
 
     # Three main components
-    # Triage
-    triage_box = FancyBboxPatch(
-        (0.5, 6.5),
-        3.5,
-        2.5,
-        boxstyle="round,pad=0.15",
-        edgecolor='#CC3311',
-        facecolor='#FFE5E5',
-        linewidth=3,
-    )
-    ax.add_patch(triage_box)
-    ax.text(
-        2.25,
-        8.5,
-        'TRIAGE',
-        ha='center',
-        va='center',
-        fontsize=14,
-        fontweight='bold',
-        color='#CC3311',
-    )
-    ax.text(
-        2.25,
-        7.8,
-        'Clinical Guidelines',
-        ha='center',
-        va='center',
-        fontsize=10,
-        fontweight='bold',
-    )
-    ax.text(
-        2.25,
-        7.3,
-        '- ACEP Dizziness/Vertigo\n- AHA/ASA Stroke\n- AAO-HNS BPPV\n- Red Flag Detection',
-        ha='center',
-        va='center',
-        fontsize=9,
-    )
+    add_box(ax, (0.5, 6.5), 3.5, 2.5,
+            'TRIAGE\nClinical Guidelines\n\n'
+            '- ACEP Dizziness/Vertigo\n- AHA/ASA Stroke\n- AAO-HNS BPPV\n- Red Flag Detection',
+            facecolor='#FFE5E5', edgecolor=COLORS['danger'], size=9)
+    add_box(ax, (5.25, 6.5), 3.5, 2.5,
+            'TiTrATE\nDiagnostic Framework\n\n'
+            '- Symptom Patterns\n- Risk Factor Scoring\n- Temporal Analysis\n- Comorbidity Assessment',
+            facecolor='#FFF4E5', edgecolor=COLORS['gate2'], size=9)
+    add_box(ax, (10, 6.5), 3.5, 2.5,
+            'XAI\nExplainability Layer\n\n'
+            '- SHAP Values\n- LIME\n- NMF Phenotypes\n- Counterfactuals\n- Rule Extraction',
+            facecolor='#E5F2FF', edgecolor=COLORS['gate3'], size=9)
 
-    # TiTrATE
-    titrate_box = FancyBboxPatch(
-        (5.25, 6.5),
-        3.5,
-        2.5,
-        boxstyle="round,pad=0.15",
-        edgecolor='#DE8F05',
-        facecolor='#FFF4E5',
-        linewidth=3,
-    )
-    ax.add_patch(titrate_box)
-    ax.text(
-        7,
-        8.5,
-        'TiTrATE',
-        ha='center',
-        va='center',
-        fontsize=14,
-        fontweight='bold',
-        color='#DE8F05',
-    )
-    ax.text(
-        7,
-        7.8,
-        'Diagnostic Framework',
-        ha='center',
-        va='center',
-        fontsize=10,
-        fontweight='bold',
-    )
-    ax.text(
-        7,
-        7.3,
-        '- Symptom Patterns\n- Risk Factor Scoring\n- Temporal Analysis\n- Comorbidity Assessment',
-        ha='center',
-        va='center',
-        fontsize=9,
-    )
-
-    # XAI
-    xai_box = FancyBboxPatch(
-        (10, 6.5),
-        3.5,
-        2.5,
-        boxstyle="round,pad=0.15",
-        edgecolor='#0173B2',
-        facecolor='#E5F2FF',
-        linewidth=3,
-    )
-    ax.add_patch(xai_box)
-    ax.text(
-        11.75,
-        8.5,
-        'XAI',
-        ha='center',
-        va='center',
-        fontsize=14,
-        fontweight='bold',
-        color='#0173B2',
-    )
-    ax.text(
-        11.75,
-        7.8,
-        'Explainability Layer',
-        ha='center',
-        va='center',
-        fontsize=10,
-        fontweight='bold',
-    )
-    ax.text(
-        11.75,
-        7.3,
-        '- SHAP Values\n- LIME\n- NMF Phenotypes\n- Counterfactuals\n- Rule Extraction',
-        ha='center',
-        va='center',
-        fontsize=9,
-    )
-
-    # Arrows connecting components
-    arrow1 = FancyArrowPatch(
-        (4, 7.75),
-        (5.25, 7.75),
-        arrowstyle='->',
-        mutation_scale=20,
-        linewidth=2.5,
-        color='black',
-    )
-    ax.add_patch(arrow1)
-
-    arrow2 = FancyArrowPatch(
-        (8.75, 7.75),
-        (10, 7.75),
-        arrowstyle='->',
-        mutation_scale=20,
-        linewidth=2.5,
-        color='black',
-    )
-    ax.add_patch(arrow2)
-
-    # SRGL Layer (underneath)
-    srgl_box = FancyBboxPatch(
-        (1, 4.5),
-        12,
-        1.5,
-        boxstyle="round,pad=0.15",
-        edgecolor='#029E73',
-        facecolor='#E5F9F0',
-        linewidth=3,
-    )
-    ax.add_patch(srgl_box)
-    ax.text(
-        7,
-        5.7,
-        'SRGL (Screening-First Risk Governance Logic)',
-        ha='center',
-        va='center',
-        fontsize=13,
-        fontweight='bold',
-        color='#029E73',
-    )
-    ax.text(
-        7,
-        5.1,
-        'Gate G1: Critical Red Flags  ->  Gate G2: Risk Factors  ->  '
-        'Gate G3: Uncertainty Quantification',
-        ha='center',
-        va='center',
-        fontsize=10,
-    )
-
-    # Arrows from components to SRGL
+    # Input -> components
     for x_pos in [2.25, 7, 11.75]:
-        arrow = FancyArrowPatch(
-            (x_pos, 6.5),
-            (x_pos, 6.0),
-            arrowstyle='->',
-            mutation_scale=15,
-            linewidth=2,
-            color='black',
-        )
-        ax.add_patch(arrow)
+        arrow(ax, (7, 9.8), (x_pos, 9.0), color='black', lw=2)
+    # Component chaining
+    arrow(ax, (4, 7.75), (5.25, 7.75), color='black', lw=2.5)
+    arrow(ax, (8.75, 7.75), (10, 7.75), color='black', lw=2.5)
 
-    # Output box
-    output_box = FancyBboxPatch(
-        (3, 2.5),
-        8,
-        1.5,
-        boxstyle="round,pad=0.15",
-        edgecolor='black',
-        facecolor='#F5F5F5',
-        linewidth=3,
-    )
-    ax.add_patch(output_box)
-    ax.text(
-        7,
-        3.7,
-        'DECISION OUTPUT',
-        ha='center',
-        va='center',
-        fontsize=13,
-        fontweight='bold',
-    )
-    ax.text(
-        7,
-        3.1,
-        'Risk Tier (R1-R5) + Urgency Level + Explanation + Care Pathway + Confidence Score',
-        ha='center',
-        va='center',
-        fontsize=10,
-    )
-
-    # Arrow from SRGL to Output
-    arrow_out = FancyArrowPatch(
-        (7, 4.5),
-        (7, 4.0),
-        arrowstyle='->',
-        mutation_scale=20,
-        linewidth=2.5,
-        color='black',
-    )
-    ax.add_patch(arrow_out)
-
-    # Input (top)
-    input_box = FancyBboxPatch(
-        (4.5, 9.8),
-        5,
-        0.8,
-        boxstyle="round,pad=0.1",
-        edgecolor='black',
-        facecolor='#E8E8E8',
-        linewidth=2,
-    )
-    ax.add_patch(input_box)
-    ax.text(
-        7,
-        10.2,
-        'PATIENT INPUT: Demographics, Symptoms, Vitals, Medical History',
-        ha='center',
-        va='center',
-        fontsize=11,
-        fontweight='bold',
-    )
-
-    # Arrows from input to components
+    # SRGL layer
+    add_box(ax, (1, 4.5), 12, 1.5,
+            'SRGL (Screening-First Risk Governance Logic)\n\n'
+            'Gate G1: Critical Red Flags  ->  Gate G2: Risk Factors  ->  '
+            'Gate G3: Uncertainty Quantification',
+            facecolor='#E5F9F0', edgecolor=COLORS['success'], size=10)
     for x_pos in [2.25, 7, 11.75]:
-        arrow = FancyArrowPatch(
-            (7, 9.8),
-            (x_pos, 9.0),
-            arrowstyle='->',
-            mutation_scale=15,
-            linewidth=2,
-            color='black',
-        )
-        ax.add_patch(arrow)
+        arrow(ax, (x_pos, 6.5), (x_pos, 6.0), color='black', lw=2)
 
-    # DRAS-5 side note
-    dras_box = FancyBboxPatch(
-        (0.3, 1.5),
-        2.5,
-        0.8,
-        boxstyle="round,pad=0.1",
-        edgecolor='#56B4E9',
-        facecolor='#E5F9FF',
-        linewidth=2,
-    )
-    ax.add_patch(dras_box)
-    ax.text(
-        1.55,
-        1.9,
-        'DRAS-5 States',
-        ha='center',
-        va='center',
-        fontsize=9,
-        fontweight='bold',
-        color='#56B4E9',
-    )
-    ax.text(
-        1.55, 1.6, '5 Decision-Risk-Action States', ha='center', va='center', fontsize=8
-    )
+    # Decision output
+    add_box(ax, (3, 2.5), 8, 1.5,
+            'DECISION OUTPUT\n\n'
+            'Risk Tier (R1-R5) + Urgency Level + Explanation + Care Pathway + Confidence Score',
+            facecolor='#F5F5F5', edgecolor='black', size=10)
+    arrow(ax, (7, 4.5), (7, 4.0), color='black', lw=2.5)
 
-    # ORASR side note
-    orasr_box = FancyBboxPatch(
-        (11.2, 1.5),
-        2.5,
-        0.8,
-        boxstyle="round,pad=0.1",
-        edgecolor='#D55E00',
-        facecolor='#FFE5D9',
-        linewidth=2,
-    )
-    ax.add_patch(orasr_box)
-    ax.text(
-        12.45,
-        1.9,
-        'ORASR Routing',
-        ha='center',
-        va='center',
-        fontsize=9,
-        fontweight='bold',
-        color='#D55E00',
-    )
-    ax.text(
-        12.45,
-        1.6,
-        'Safety Routing & Care Pathways',
-        ha='center',
-        va='center',
-        fontsize=8,
-    )
+    # Side notes
+    add_box(ax, (0.3, 1.5), 2.5, 0.8,
+            'DRAS-5 States\n5 Decision-Risk-Action States',
+            facecolor='#E5F9FF', edgecolor=PALETTE[5], size=8)
+    add_box(ax, (11.2, 1.5), 2.5, 0.8,
+            'ORASR Routing\nSafety Routing & Care Pathways',
+            facecolor='#FFE5D9', edgecolor=COLORS['danger'], size=8)
 
-    # Bottom note
-    ax.text(
-        7,
-        0.8,
-        'Transparent | Auditable | Safety-First | Clinically-Grounded',
-        ha='center',
-        va='center',
+    ax.text(7, 0.8, 'Transparent | Auditable | Safety-First | Clinically-Grounded',
+            ha='center', va='center', fontsize=11, fontweight='bold',
+            style='italic', color='#555555')
+
+    save_fig(fig, 'fig2_framework_architecture', output_dir)
+    plt.close(fig)
+
+
+def create_safety_gate_compliance(output_dir='outputs/figures'):
+    """Figure 3: triage-first safety-gate escalation compliance.
+
+    Core JIIS safety metric. Reads results/framework/safety_gate_compliance.json
+    (falls back to framework_summary.json). Shows how the gate handles the
+    central/dangerous cohort (caught vs missed red flags) and its over-escalation
+    on benign cases -- the safety/cost trade-off the manuscript reports.
+    """
+    try:
+        sg = load_results("framework/safety_gate_compliance.json")
+    except FileNotFoundError:
+        sg = load_results("framework/framework_summary.json")["safety_gate_compliance"]
+
+    central_total = sg["central_dangerous_total"]
+    caught = sg["central_caught_by_gate"]
+    missed = sg["central_missed_by_gate"]
+    compliance = sg["escalation_compliance"] * 100.0
+    over_rate = sg["over_escalation_rate_on_benign"] * 100.0
+
+    fig, (axL, axR) = plt.subplots(1, 2, figsize=(9.6, 4.4),
+                                   gridspec_kw={"width_ratios": [1.15, 1]})
+
+    # Left: stacked composition of the central/dangerous cohort (caught vs missed).
+    bar_caught = axL.bar(["Central / dangerous\ncohort"], [caught],
+                         color=COLORS["success"], edgecolor="#1a202c",
+                         linewidth=0.6, hatch="//", label="Caught by gate")
+    bar_missed = axL.bar(["Central / dangerous\ncohort"], [missed], bottom=[caught],
+                         color=COLORS["danger"], edgecolor="#1a202c",
+                         linewidth=0.6, hatch="xx", label="Missed red flags")
+    axL.text(0, caught / 2, f"{caught}", ha="center", va="center",
+             fontsize=10, fontweight="bold", color="white")
+    axL.text(0, caught + missed + central_total * 0.02, f"missed = {missed}",
+             ha="center", va="bottom", fontsize=9, fontweight="bold",
+             color=COLORS["danger"])
+    axL.set_ylabel(f"Cases (central/dangerous total n={central_total})")
+    axL.set_title("Red-flag escalation by the safety gate")
+    axL.set_ylim(0, central_total * 1.18)
+    axL.grid(axis="y", which="both")
+    axL.legend(loc="upper center", frameon=False, ncol=1, bbox_to_anchor=(0.5, -0.10))
+    axL.spines[["top", "right"]].set_visible(False)
+
+    # Right: the two headline rates (compliance vs benign over-escalation).
+    rates = [compliance, over_rate]
+    rate_labels = ["Escalation\ncompliance", "Over-escalation\non benign"]
+    rate_colors = [COLORS["success"], COLORS["warning"]]
+    hatches = ["//", ".."]
+    bars = axR.bar(rate_labels, rates, color=rate_colors, edgecolor="#1a202c",
+                   linewidth=0.6)
+    for b, h in zip(bars, hatches):
+        b.set_hatch(h)
+    for b, v in zip(bars, rates):
+        axR.text(b.get_x() + b.get_width() / 2, b.get_height() + 1.5,
+                 f"{v:.1f}%", ha="center", va="bottom", fontsize=10,
+                 fontweight="bold")
+    axR.set_ylabel("Rate (%)")
+    axR.set_ylim(0, 105)
+    axR.set_title("Safety / over-triage trade-off")
+    axR.grid(axis="y", which="both")
+    axR.spines[["top", "right"]].set_visible(False)
+
+    fig.suptitle(
+        f"Safety-gate compliance (seed 42, synthetic cohort): "
+        f"{caught}/{central_total} red flags escalated",
         fontsize=11,
-        fontweight='bold',
-        style='italic',
-        color='#555555',
     )
 
-    # Save figure (vector PDF + 300-dpi PNG via shared rcParams)
-    plt.savefig(f'{output_dir}/fig2_framework_architecture.png', bbox_inches='tight')
-    plt.savefig(f'{output_dir}/fig2_framework_architecture.pdf', bbox_inches='tight')
-    print("[OK] Saved: fig2_framework_architecture.png/pdf")
-    plt.close()
+    save_fig(fig, 'fig3_safety_gate_compliance', output_dir)
+    plt.close(fig)
 
 
-def create_performance_dashboard_2d(output_dir='outputs/figures'):
+def create_missingness_stability(output_dir='outputs/figures'):
+    """Figure 4: routing stability when input fields are unobserved.
+
+    Core JIIS governance metric. Reads results/framework/missingness_stability.json
+    (falls back to framework_summary.json). Shows the gate-decision flip rate vs the
+    stability score under conservative (worst-case) imputation of dropped red-flag
+    fields, and confirms that no unsafe de-escalation flips occur.
     """
-    Performance metrics dashboard.
+    try:
+        ms = load_results("framework/missingness_stability.json")
+    except FileNotFoundError:
+        ms = load_results("framework/framework_summary.json")["missingness_stability"]
 
-    Not rendered: the committed package computes no diagnostic-performance metrics
-    (accuracy, sensitivity, F1, ROC-AUC, etc.), so there is no computed source for
-    this panel. See REPRODUCIBILITY.md for the manuscript-vs-code gap.
-    """
-    print(
-        "[SKIP] create_performance_dashboard_2d: no computed performance metrics "
-        "available (see REPRODUCIBILITY.md)."
+    flip_rate = ms["gate_flip_rate"] * 100.0
+    stability = ms["stability_score"] * 100.0
+    unsafe = ms["unsafe_deescalation_flips"]
+    flips = ms["gate_decision_flips"]
+    n_fields = len(ms["fields_dropped"])
+
+    fig, (axL, axR) = plt.subplots(1, 2, figsize=(9.6, 4.4),
+                                   gridspec_kw={"width_ratios": [1, 1.1]})
+
+    # Left: stability vs flip-rate (color-blind-safe pair with distinct hatches).
+    labels = ["Stable\nrouting", "Decision\nflips"]
+    vals = [stability, flip_rate]
+    colors = [COLORS["success"], COLORS["secondary"]]
+    hatches = ["//", ".."]
+    bars = axL.bar(labels, vals, color=colors, edgecolor="#1a202c", linewidth=0.6)
+    for b, h in zip(bars, hatches):
+        b.set_hatch(h)
+    for b, v in zip(bars, vals):
+        axL.text(b.get_x() + b.get_width() / 2, b.get_height() + 1.5,
+                 f"{v:.1f}%", ha="center", va="bottom", fontsize=10,
+                 fontweight="bold")
+    axL.set_ylabel("Share of decisions (%)")
+    axL.set_ylim(0, 105)
+    axL.set_title(f"Stability under {n_fields} dropped red-flag fields")
+    axL.grid(axis="y", which="both")
+    axL.spines[["top", "right"]].set_visible(False)
+
+    # Right: flip composition -- safe (hold or conservative escalate) vs unsafe.
+    safe_flips = flips - unsafe
+    bar_safe = axR.bar(["Gate-decision\nflips"], [safe_flips],
+                       color=COLORS["info"], edgecolor="#1a202c",
+                       linewidth=0.6, hatch="//", label="Safe flips (hold/escalate)")
+    axR.bar(["Gate-decision\nflips"], [unsafe], bottom=[safe_flips],
+            color=COLORS["danger"], edgecolor="#1a202c",
+            linewidth=0.6, hatch="xx", label="Unsafe de-escalation")
+    axR.text(0, safe_flips / 2, f"{safe_flips}", ha="center", va="center",
+             fontsize=10, fontweight="bold", color="white")
+    axR.text(0, flips + max(flips * 0.02, 1),
+             f"unsafe de-escalations = {unsafe}", ha="center", va="bottom",
+             fontsize=9, fontweight="bold",
+             color=COLORS["danger"] if unsafe else COLORS["success"])
+    axR.set_ylabel("Flipped decisions (n)")
+    axR.set_ylim(0, max(flips * 1.15, 1))
+    axR.set_title("Flip safety composition")
+    axR.legend(loc="upper right", frameon=False)
+    axR.grid(axis="y", which="both")
+    axR.spines[["top", "right"]].set_visible(False)
+
+    fig.suptitle(
+        f"Missingness stability (seed 42): stability score {stability:.1f}%, "
+        f"{unsafe} unsafe de-escalations",
+        fontsize=11,
     )
-    return
 
-
-def create_performance_3d(output_dir='outputs/figures'):
-    """
-    3D performance visualization.
-
-    Not rendered: the per-cell accuracy values this panel requires (by age group
-    and risk level) are not computed anywhere in the package. See REPRODUCIBILITY.md.
-    """
-    print(
-        "[SKIP] create_performance_3d: no computed accuracy grid available "
-        "(see REPRODUCIBILITY.md)."
-    )
-    return
-
-
-def create_xai_methods_comparison(output_dir='outputs/figures'):
-    """
-    Explainability-method comparison.
-
-    Not rendered: SHAP/LIME/NMF/counterfactual attribution values and
-    explanation-consistency percentages are not produced by the package (no fitted
-    explainers exist here). For computed SHAP importances, see
-    scripts/generate_manuscript_figures.py. See REPRODUCIBILITY.md.
-    """
-    print(
-        "[SKIP] create_xai_methods_comparison: no computed explainer outputs "
-        "available (see REPRODUCIBILITY.md)."
-    )
-    return
-
-
-def create_decision_time_analysis(output_dir='outputs/figures'):
-    """
-    Decision-time analysis.
-
-    Not rendered: measured per-case latency is computed by scripts/run_all.py into
-    results/latency_summary.json; this module does not synthesize timings.
-    See REPRODUCIBILITY.md.
-    """
-    print(
-        "[SKIP] create_decision_time_analysis: use results/latency_summary.json "
-        "for measured latency (see REPRODUCIBILITY.md)."
-    )
-    return
+    save_fig(fig, 'fig4_missingness_stability', output_dir)
+    plt.close(fig)
 
 
 def main():
-    """Generate the TRI-X structural diagrams."""
-
+    """Generate the TRI-X manuscript-scope figures (schematic + behaviour)."""
     print("\n" + "=" * 60)
-    print("TRI-X STRUCTURAL DIAGRAM GENERATOR")
+    print("TRI-X MANUSCRIPT FIGURE GENERATOR (schematic + behaviour)")
     print("=" * 60 + "\n")
 
     apply_pub_style()  # shared publication style: serif fonts + Okabe-Ito palette
 
     output_dir = 'outputs/figures'
-
     print(f"Output directory: {output_dir}\n")
-    print("Generating structural diagrams...\n")
 
+    # Schematic (no quantitative content)
     create_srgl_flow_diagram(output_dir)
     create_framework_architecture(output_dir)
 
+    # Data-driven decision-behaviour charts (results/framework/, seed 42).
+    # If the artefacts are missing, run scripts/run_framework.py first.
+    try:
+        create_safety_gate_compliance(output_dir)
+        create_missingness_stability(output_dir)
+    except FileNotFoundError as exc:
+        print(f"[SKIP] behaviour charts: {exc}")
+        print("       run 'python scripts/run_framework.py' (seed 42) first.")
+
     print("\n" + "=" * 60)
-    print("[DONE] STRUCTURAL DIAGRAM PASS COMPLETE")
+    print("[DONE] FIGURE PASS COMPLETE")
     print("=" * 60)
-    print("Output formats: PNG (600 DPI) + PDF (vector)")
-    print(f"Location: {output_dir}/")
-    print("\nRendered (structural, no quantitative content):")
-    print("  - fig1_srgl_flow_diagram      (logic diagram)")
-    print("  - fig2_framework_architecture (architecture diagram)")
-    print("\nFor computed, data-driven figures run:")
-    print("  python scripts/run_all.py")
-    print("  python scripts/generate_manuscript_figures.py")
-    print("\nNot rendered here (no computed source; see REPRODUCIBILITY.md):")
-    print("  - performance dashboard, 3D performance, XAI comparison, decision time")
+    print("Vector PDF + 300-dpi PNG written to", output_dir + "/")
+    print("  - fig1_srgl_flow_diagram        (schematic)")
+    print("  - fig2_framework_architecture   (schematic)")
+    print("  - fig3_safety_gate_compliance   (results/framework/safety_gate_compliance.json)")
+    print("  - fig4_missingness_stability    (results/framework/missingness_stability.json)")
+    print("\nExploratory ML effectiveness figs (SUPPLEMENTARY, outside manuscript scope):")
+    print("  python experimental/effectiveness/generate_manuscript_figures.py")
     print("\n" + "=" * 60 + "\n")
 
 
