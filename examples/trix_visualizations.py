@@ -17,6 +17,7 @@ Author: Chatchai Tritham
 Date: 2026-01-28
 """
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
 import matplotlib.patches as mpatches
@@ -25,28 +26,43 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-# Publication settings
-plt.rcParams['font.family'] = 'Arial'
-plt.rcParams['font.size'] = 10
-plt.rcParams['axes.linewidth'] = 1.5
-plt.rcParams['figure.dpi'] = 300
-plt.rcParams['savefig.dpi'] = 600
-plt.rcParams['savefig.bbox'] = 'tight'
-plt.rcParams['savefig.pad_inches'] = 0.1
+# Canonical Top-Tier figure style (shared across all PhD repos; see
+# _management/FIGURE_STYLE.md). Color-blind-safe Okabe-Ito palette, used in order.
+PALETTE = ["#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#000000"]
 
-# Color palette (colorblind-friendly)
+
+def apply_pub_style():
+    """Apply the shared publication rcParams + Okabe-Ito cycler. Call once."""
+    mpl.rcParams.update({
+        "figure.dpi": 150, "savefig.dpi": 300, "savefig.bbox": "tight",
+        "savefig.pad_inches": 0.02,
+        "font.family": "serif",
+        "font.serif": ["Times New Roman", "Times", "DejaVu Serif"],
+        "mathtext.fontset": "stix",
+        "font.size": 10, "axes.titlesize": 11, "axes.labelsize": 10,
+        "xtick.labelsize": 9, "ytick.labelsize": 9, "legend.fontsize": 9,
+        "axes.spines.top": False, "axes.spines.right": False,
+        "axes.linewidth": 0.8, "axes.grid": True,
+        "grid.alpha": 0.3, "grid.linewidth": 0.6,
+        "lines.linewidth": 1.6, "lines.markersize": 5,
+        "legend.frameon": False, "figure.constrained_layout.use": True,
+        "axes.prop_cycle": mpl.cycler(color=PALETTE),
+    })
+
+
+# Semantic role -> Okabe-Ito palette colour (consistent across every figure/repo).
 COLORS = {
-    'primary': '#0173B2',  # Blue
-    'secondary': '#DE8F05',  # Orange
-    'success': '#029E73',  # Green
-    'danger': '#CC3311',  # Red
-    'warning': '#ECA400',  # Yellow
-    'info': '#56B4E9',  # Light blue
-    'critical': '#D55E00',  # Dark orange
-    'neutral': '#949494',  # Gray
-    'gate1': '#CC3311',  # Red (Critical)
-    'gate2': '#DE8F05',  # Orange (Risk)
-    'gate3': '#0173B2',  # Blue (Uncertainty)
+    'primary': PALETTE[0],    # Blue
+    'secondary': PALETTE[4],  # Orange/amber
+    'success': PALETTE[2],    # Green
+    'danger': PALETTE[1],     # Vermillion
+    'warning': PALETTE[4],    # Amber
+    'info': PALETTE[5],       # Sky blue
+    'critical': PALETTE[1],   # Vermillion
+    'neutral': "#666666",     # Gray
+    'gate1': PALETTE[1],      # Vermillion (Critical)
+    'gate2': PALETTE[4],      # Amber (Risk)
+    'gate3': PALETTE[0],      # Blue (Uncertainty)
 }
 
 
@@ -476,10 +492,8 @@ def create_srgl_flow_diagram(output_dir='outputs/figures'):
         handles=legend_elements, loc='lower left', fontsize=9, frameon=True, shadow=True
     )
 
-    # Save figure
-    plt.savefig(
-        f'{output_dir}/fig1_srgl_flow_diagram.png', dpi=600, bbox_inches='tight'
-    )
+    # Save figure (vector PDF + 300-dpi PNG via shared rcParams)
+    plt.savefig(f'{output_dir}/fig1_srgl_flow_diagram.png', bbox_inches='tight')
     plt.savefig(f'{output_dir}/fig1_srgl_flow_diagram.pdf', bbox_inches='tight')
     print("[OK] Saved: fig1_srgl_flow_diagram.png/pdf")
     plt.close()
@@ -831,10 +845,8 @@ def create_framework_architecture(output_dir='outputs/figures'):
         color='#555555',
     )
 
-    # Save figure
-    plt.savefig(
-        f'{output_dir}/fig2_framework_architecture.png', dpi=600, bbox_inches='tight'
-    )
+    # Save figure (vector PDF + 300-dpi PNG via shared rcParams)
+    plt.savefig(f'{output_dir}/fig2_framework_architecture.png', bbox_inches='tight')
     plt.savefig(f'{output_dir}/fig2_framework_architecture.pdf', bbox_inches='tight')
     print("[OK] Saved: fig2_framework_architecture.png/pdf")
     plt.close()
@@ -906,6 +918,8 @@ def main():
     print("\n" + "=" * 60)
     print("TRI-X STRUCTURAL DIAGRAM GENERATOR")
     print("=" * 60 + "\n")
+
+    apply_pub_style()  # shared publication style: serif fonts + Okabe-Ito palette
 
     output_dir = 'outputs/figures'
 
