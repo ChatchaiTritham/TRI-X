@@ -48,6 +48,8 @@ tests/                     unit + determinism checks
 ## Installation
 
 ```bash
+git clone https://github.com/ChatchaiTritham/TRI-X.git
+cd TRI-X
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -e .
 pip install -r requirements.txt
