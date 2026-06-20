@@ -1,9 +1,13 @@
 # Reproducibility
 
 This document records exactly what the committed TRI-X code reproduces relative to
-the manuscript. The repository now contains a real, end-to-end empirical pipeline:
-the headline numbers are computed by committed code on a documented **synthetic**
-cohort and reproduce byte-for-byte.
+the manuscript. The manuscript (JIIS) is a methodological / governance framework and
+reports **no quantitative effectiveness claims**; it evaluates decision *behaviour*.
+The repository's **primary** runner reproduces those behaviour artefacts. A separate,
+**supplementary** ML effectiveness pipeline (outside the manuscript's scope) lives in
+`experimental/effectiveness/`; its numbers are computed by committed code on a
+documented **synthetic** cohort and reproduce byte-for-byte, but they are exploratory
+and must not be read as effectiveness evidence.
 
 > Data disclosure: all data are synthetic. No real patient records and no human
 > ratings are used anywhere in this repository or its results.
@@ -17,15 +21,36 @@ python -m venv .venv
 pip install -e .
 pip install -r requirements.txt
 
-python scripts/run_all.py                     # compute results/ (seed = 42)
-python scripts/generate_manuscript_figures.py # render figures from results/
-python scripts/run_validation.py              # convenience: run_all + figures
+# PRIMARY — framework decision-behaviour artefacts the manuscript reports (seed = 42)
+python scripts/run_framework.py               # writes results/framework/*.json
 python -m pytest -q                            # unit + determinism tests
+
+# SUPPLEMENTARY — exploratory ML effectiveness study (outside manuscript scope)
+python experimental/effectiveness/run_all.py                     # compute results/ (seed = 42)
+python experimental/effectiveness/generate_manuscript_figures.py # render figures from results/
+python experimental/effectiveness/run_validation.py              # convenience: run_all + figures
 ```
 
-`scripts/run_all.py` is deterministic: with the fixed seed (42) every numeric output
-in `results/*.json|csv` reproduces byte-for-byte on every run. Single-case inference
-latency is the only hardware-dependent, non-byte-stable output and is labelled as such.
+`run_framework.py` trains no model: it exercises the deterministic governance logic and
+writes safety-gate compliance, the G1–G5 schema, the monotone-escalation invariant,
+missingness stability, and trace completeness to `results/framework/`. The exploratory
+`experimental/effectiveness/run_all.py` is deterministic too: with the fixed seed (42)
+every numeric output in `results/*.json|csv` reproduces byte-for-byte. Single-case
+inference latency is the only hardware-dependent, non-byte-stable output. The old
+`scripts/run_all.py`, `scripts/generate_manuscript_figures.py`, and
+`scripts/run_validation.py` paths still work as thin redirect stubs.
+
+## Framework behaviour artefacts (manuscript scope)
+
+`scripts/run_framework.py` writes, to `results/framework/`:
+
+| Artefact | Property checked |
+|---|---|
+| `safety_gate_compliance.json` | Escalation compliance — central/dangerous cases the safety gate escalates; missed red flags |
+| `behaviour_schema_g1g5.json` | G1–G5 routing distribution over the cohort |
+| `monotone_escalation.json` | "Low-risk never escalates" + urgency cannot drop under removed fields |
+| `missingness_stability.json` | Gate-decision flip rate when fields are dropped |
+| `trace_completeness.json` | Every decision carries a complete, schema-valid audit trace |
 
 ## What the pipeline does
 

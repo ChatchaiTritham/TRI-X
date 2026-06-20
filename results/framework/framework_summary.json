@@ -1,0 +1,119 @@
+{
+  "framework": "TRI-X (Triage-TiTrATE-XAI)",
+  "scope": "Decision-behaviour evaluation; no quantitative effectiveness claims.",
+  "seed": 42,
+  "n_cases": 5000,
+  "data_disclosure": "All data synthetic; no real patient data; no human ratings.",
+  "safety_gate_compliance": {
+    "central_dangerous_total": 789,
+    "central_caught_by_gate": 773,
+    "central_missed_by_gate": 16,
+    "escalation_compliance": 0.979721,
+    "missed_red_flags": 16,
+    "over_escalation_count": 2038,
+    "over_escalation_rate_on_benign": 0.483971,
+    "interpretation": "escalation_compliance = fraction of central/dangerous cases the triage-first safety gate escalates; missed_red_flags should be 0."
+  },
+  "behaviour_schema_g1g5": {
+    "group_labels": {
+      "G1": "Immediate emergency (central red flag)",
+      "G2": "Urgent specialist (high-risk, manageable uncertainty)",
+      "G3": "Early follow-up",
+      "G4": "Routine care",
+      "G5": "Reassurance"
+    },
+    "group_counts": {
+      "G1": 1140,
+      "G2": 1671,
+      "G3": 127,
+      "G4": 1583,
+      "G5": 479
+    },
+    "group_proportion_pct": {
+      "G1": 22.8,
+      "G2": 33.42,
+      "G3": 2.54,
+      "G4": 31.66,
+      "G5": 9.58
+    }
+  },
+  "monotone_escalation": {
+    "monotone_escalation_violations": 0,
+    "monotone_escalation_holds": true,
+    "benign_routed_to_G1": 410,
+    "low_risk_never_escalates_holds": false,
+    "interpretation": "Under removed fields the gate may only hold or escalate urgency; a drop in urgency is a safety-invariant violation."
+  },
+  "missingness_stability": {
+    "fields_dropped": [
+      "skew_deviation",
+      "nystagmus_direction_changing",
+      "nystagmus_vertical",
+      "head_impulse_normal",
+      "gait_unsteady_severe"
+    ],
+    "gate_decision_flips": 2189,
+    "gate_flip_rate": 0.4378,
+    "unsafe_deescalation_flips": 0,
+    "stability_score": 0.5622,
+    "interpretation": "Lower flip rate = more stable routing under missing fields; unsafe_deescalation_flips (escalate->benign) should be 0."
+  },
+  "trace_completeness": {
+    "decisions_traced": 5000,
+    "required_fields": [
+      "case_id",
+      "gate_decision",
+      "group",
+      "rule_score",
+      "rationale"
+    ],
+    "incomplete_traces": 0,
+    "trace_completeness": 1.0,
+    "sample_traces": [
+      {
+        "case_id": 0,
+        "gate_decision": "central_escalate",
+        "group": "G2",
+        "rule_score": 0.549834,
+        "rationale": "rule-score >= 0.30 -> safety gate escalates"
+      },
+      {
+        "case_id": 1,
+        "gate_decision": "benign_route",
+        "group": "G4",
+        "rule_score": 0.276878,
+        "rationale": "rule-score < 0.30 -> non-emergency routing"
+      },
+      {
+        "case_id": 2,
+        "gate_decision": "central_escalate",
+        "group": "G1",
+        "rule_score": 0.991837,
+        "rationale": "rule-score >= 0.30 -> safety gate escalates"
+      },
+      {
+        "case_id": 3,
+        "gate_decision": "central_escalate",
+        "group": "G2",
+        "rule_score": 0.549834,
+        "rationale": "rule-score >= 0.30 -> safety gate escalates"
+      },
+      {
+        "case_id": 4,
+        "gate_decision": "benign_route",
+        "group": "G5",
+        "rule_score": 0.231475,
+        "rationale": "rule-score < 0.30 -> non-emergency routing"
+      }
+    ],
+    "interpretation": "trace_completeness = fraction of decisions with a full audit record; governance requires 1.0."
+  },
+  "artefacts": [
+    "results/framework/safety_gate_compliance.json",
+    "results/framework/behaviour_schema_g1g5.json",
+    "results/framework/monotone_escalation.json",
+    "results/framework/missingness_stability.json",
+    "results/framework/trace_completeness.json"
+  ],
+  "supplementary_effectiveness_study": "experimental/effectiveness/ (outside manuscript scope)"
+}

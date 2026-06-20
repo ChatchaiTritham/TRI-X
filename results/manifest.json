@@ -38,6 +38,6 @@
     "central_npv": 0.993485,
     "central_specificity": 0.965954,
     "central_ppv": 0.841912,
-    "latency_s": 0.0293
+    "latency_s": 0.0205
   }
 }

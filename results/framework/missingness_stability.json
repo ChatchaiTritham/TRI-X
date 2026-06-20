@@ -1,0 +1,14 @@
+{
+  "fields_dropped": [
+    "skew_deviation",
+    "nystagmus_direction_changing",
+    "nystagmus_vertical",
+    "head_impulse_normal",
+    "gait_unsteady_severe"
+  ],
+  "gate_decision_flips": 2189,
+  "gate_flip_rate": 0.4378,
+  "unsafe_deescalation_flips": 0,
+  "stability_score": 0.5622,
+  "interpretation": "Lower flip rate = more stable routing under missing fields; unsafe_deescalation_flips (escalate->benign) should be 0."
+}
