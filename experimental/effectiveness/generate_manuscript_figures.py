@@ -19,6 +19,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image, ImageDraw
@@ -28,41 +29,48 @@ ROOT = Path(__file__).resolve().parents[2]
 RESULTS_DIR = ROOT / "results"
 DEFAULT_OUTPUT_DIR = ROOT / "figures" / "manuscript"
 DEFAULT_MANIFEST = ROOT / "FIGURE_MANIFEST.csv"
-DPI = 600
+DPI = 300
 
 SOURCE_SCRIPT = "experimental/effectiveness/generate_manuscript_figures.py"
 
+# Canonical Top-Tier figure style (shared across all PhD repos; see
+# _management/FIGURE_STYLE.md). Color-blind-safe Okabe-Ito palette, used in order.
+PALETTE = ["#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#000000"]
+
+# Semantic series -> Okabe-Ito palette colour (consistent across every figure/repo).
 COLORS = {
-    "hybrid": "#0f3460",
-    "ml": "#2b6cb0",
-    "rules": "#dd6b20",
-    "central": "#de2d26",
-    "benign": "#2ca25f",
-    "gray": "#4a5568",
+    "hybrid": PALETTE[0],   # Blue
+    "ml": PALETTE[5],       # Sky blue
+    "rules": PALETTE[1],    # Vermillion
+    "central": PALETTE[1],  # Vermillion (central / dangerous)
+    "benign": PALETTE[2],   # Green (benign peripheral)
+    "gray": "#666666",
 }
 
 
-def configure_plotting() -> None:
-    plt.rcParams.update(
-        {
-            "figure.dpi": DPI,
-            "savefig.dpi": DPI,
-            "font.family": "serif",
-            "font.serif": ["Times New Roman", "DejaVu Serif"],
-            "font.size": 9,
-            "axes.labelsize": 9,
-            "axes.titlesize": 10,
-            "axes.titleweight": "bold",
-            "xtick.labelsize": 8,
-            "ytick.labelsize": 8,
-            "legend.fontsize": 8,
-            "axes.linewidth": 0.8,
-            "grid.linewidth": 0.4,
-            "grid.alpha": 0.25,
-            "pdf.fonttype": 42,
-            "ps.fonttype": 42,
-        }
-    )
+def apply_pub_style() -> None:
+    """Apply the shared publication rcParams + Okabe-Ito cycler. Call once."""
+    mpl.rcParams.update({
+        "figure.dpi": 150, "savefig.dpi": DPI, "savefig.bbox": "tight",
+        "savefig.pad_inches": 0.02,
+        "font.family": "serif",
+        "font.serif": ["Times New Roman", "Times", "DejaVu Serif"],
+        "mathtext.fontset": "stix",
+        "font.size": 10, "axes.titlesize": 11, "axes.labelsize": 10,
+        "xtick.labelsize": 9, "ytick.labelsize": 9, "legend.fontsize": 9,
+        "axes.spines.top": False, "axes.spines.right": False,
+        "axes.linewidth": 0.8, "axes.grid": True,
+        "grid.alpha": 0.3, "grid.linewidth": 0.6,
+        "lines.linewidth": 1.6, "lines.markersize": 5,
+        "legend.frameon": False, "figure.constrained_layout.use": True,
+        "axes.prop_cycle": mpl.cycler(color=PALETTE),
+        # Embed fonts as TrueType for camera-ready vector PDFs.
+        "pdf.fonttype": 42, "ps.fonttype": 42,
+    })
+
+
+# Backward-compatible alias (old callers used configure_plotting()).
+configure_plotting = apply_pub_style
 
 
 def require_results() -> None:
@@ -107,7 +115,6 @@ def figure1_accuracy(output_dir: Path) -> dict[str, str]:
     ax.set_ylim(0, 105)
     ax.grid(axis="y")
     ax.spines[["top", "right"]].set_visible(False)
-    fig.tight_layout()
 
     png_path, pdf_path = save_figure(fig, output_dir, "fig1_diagnostic_accuracy")
     return {
@@ -148,7 +155,6 @@ def figure2_critical(output_dir: Path) -> dict[str, str]:
     ax.legend(frameon=False, ncol=3, loc="upper center", bbox_to_anchor=(0.5, -0.12))
     ax.grid(axis="y")
     ax.spines[["top", "right"]].set_visible(False)
-    fig.tight_layout()
 
     png_path, pdf_path = save_figure(fig, output_dir, "fig2_critical_scenario")
     return {
@@ -175,7 +181,6 @@ def figure3_shap(output_dir: Path) -> dict[str, str]:
     ax.set_title("Global feature importance (SHAP, Random Forest)")
     ax.grid(axis="x")
     ax.spines[["top", "right"]].set_visible(False)
-    fig.tight_layout()
 
     png_path, pdf_path = save_figure(fig, output_dir, "fig3_shap_importance")
     return {
@@ -212,7 +217,6 @@ def figure4_cohort(output_dir: Path) -> dict[str, str]:
         plt.Rectangle((0, 0), 1, 1, color=COLORS["benign"]),
     ]
     ax.legend(handles, ["Central / dangerous", "Benign peripheral"], frameon=False)
-    fig.tight_layout()
 
     png_path, pdf_path = save_figure(fig, output_dir, "fig4_cohort_distribution")
     return {
@@ -271,7 +275,7 @@ def main() -> None:
     args = parser.parse_args()
 
     require_results()
-    configure_plotting()
+    apply_pub_style()  # shared publication style: serif fonts + Okabe-Ito palette
     args.output_dir.mkdir(parents=True, exist_ok=True)
     rows = [
         figure1_accuracy(args.output_dir),
