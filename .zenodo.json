@@ -1,0 +1,28 @@
+{
+  "title": "TRI-X: A Framework for Triage, TiTrATE Reasoning, Safety Governance, and Transparent Decision Support",
+  "description": "A framework-level package for clinical decision support that estimates triage risk, applies TiTrATE dizziness reasoning, enforces safety-governance and audit logic, and produces transparent, explainable decisions. All reported metrics are computed on a synthetic cohort by a deterministic seed-42 driver (scripts/run_all.py) and reproduce byte-for-byte, with figures rendered from the computed results.",
+  "upload_type": "software",
+  "license": "MIT",
+  "access_right": "open",
+  "version": "1.0.0",
+  "creators": [
+    {
+      "name": "Tritham, Chatchai",
+      "orcid": "0000-0001-7899-228X",
+      "affiliation": "Department of Computer Science and Information Technology, Faculty of Science, Naresuan University, Phitsanulok 65000, Thailand"
+    },
+    {
+      "name": "Namahoot, Chakkrit Snae",
+      "orcid": "0000-0003-4660-4590",
+      "affiliation": "Department of Computer Science and Information Technology, Faculty of Science, Naresuan University, Phitsanulok 65000, Thailand"
+    }
+  ],
+  "keywords": [
+    "clinical decision support systems",
+    "triage",
+    "TiTrATE reasoning",
+    "safety governance",
+    "transparent decision support",
+    "reproducibility"
+  ]
+}

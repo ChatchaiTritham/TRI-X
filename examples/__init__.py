@@ -11,7 +11,6 @@ __all__ = [
     'create_framework_architecture',
     'create_performance_dashboard_2d',
     'create_performance_3d',
-    'create_risk_tier_distribution',
     'create_xai_methods_comparison',
     'create_decision_time_analysis',
 ]

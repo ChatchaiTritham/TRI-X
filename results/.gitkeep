@@ -1,1 +1,17 @@
+# results/ — generated, not committed
 
+This directory ships empty on purpose. No results are committed to the repository,
+so none can drift from the code. Regenerate every numeric output locally with:
+
+    python scripts/run_all.py        # seed = 42
+
+That writes the deterministic outputs
+  - cohort_distribution.csv
+  - feature_summary.csv
+  - diagnostic_performance.json
+  - critical_scenario.json
+  - explainability.json
+  - manifest.json
+and the hardware-dependent latency_summary.json.
+
+Do NOT hand-edit or hand-author any file here; all values must come from run_all.py.

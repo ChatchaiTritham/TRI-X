@@ -8,7 +8,7 @@ An integrated framework for safe AI decision-making in critical systems.
 from .constants import FRAMEWORK_NAME, PACKAGE_VERSION
 
 __version__ = PACKAGE_VERSION
-__author__ = "Clinical AI Research Team"
+__author__ = "Chatchai Tritham"
 
 from .triage import TriageModule, RiskLevel
 from .titrate import TiTrATEEngine, TemporalConstraint

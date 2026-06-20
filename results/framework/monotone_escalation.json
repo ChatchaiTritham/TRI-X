@@ -1,0 +1,7 @@
+{
+  "monotone_escalation_violations": 0,
+  "monotone_escalation_holds": true,
+  "benign_routed_to_G1": 410,
+  "low_risk_never_escalates_holds": false,
+  "interpretation": "Under removed fields the gate may only hold or escalate urgency; a drop in urgency is a safety-invariant violation."
+}

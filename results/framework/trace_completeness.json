@@ -1,0 +1,50 @@
+{
+  "decisions_traced": 5000,
+  "required_fields": [
+    "case_id",
+    "gate_decision",
+    "group",
+    "rule_score",
+    "rationale"
+  ],
+  "incomplete_traces": 0,
+  "trace_completeness": 1.0,
+  "sample_traces": [
+    {
+      "case_id": 0,
+      "gate_decision": "central_escalate",
+      "group": "G2",
+      "rule_score": 0.549834,
+      "rationale": "rule-score >= 0.30 -> safety gate escalates"
+    },
+    {
+      "case_id": 1,
+      "gate_decision": "benign_route",
+      "group": "G4",
+      "rule_score": 0.276878,
+      "rationale": "rule-score < 0.30 -> non-emergency routing"
+    },
+    {
+      "case_id": 2,
+      "gate_decision": "central_escalate",
+      "group": "G1",
+      "rule_score": 0.991837,
+      "rationale": "rule-score >= 0.30 -> safety gate escalates"
+    },
+    {
+      "case_id": 3,
+      "gate_decision": "central_escalate",
+      "group": "G2",
+      "rule_score": 0.549834,
+      "rationale": "rule-score >= 0.30 -> safety gate escalates"
+    },
+    {
+      "case_id": 4,
+      "gate_decision": "benign_route",
+      "group": "G5",
+      "rule_score": 0.231475,
+      "rationale": "rule-score < 0.30 -> non-emergency routing"
+    }
+  ],
+  "interpretation": "trace_completeness = fraction of decisions with a full audit record; governance requires 1.0."
+}

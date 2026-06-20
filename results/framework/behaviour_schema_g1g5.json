@@ -1,0 +1,23 @@
+{
+  "group_labels": {
+    "G1": "Immediate emergency (central red flag)",
+    "G2": "Urgent specialist (high-risk, manageable uncertainty)",
+    "G3": "Early follow-up",
+    "G4": "Routine care",
+    "G5": "Reassurance"
+  },
+  "group_counts": {
+    "G1": 1140,
+    "G2": 1671,
+    "G3": 127,
+    "G4": 1583,
+    "G5": 479
+  },
+  "group_proportion_pct": {
+    "G1": 22.8,
+    "G2": 33.42,
+    "G3": 2.54,
+    "G4": 31.66,
+    "G5": 9.58
+  }
+}

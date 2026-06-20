@@ -1,0 +1,10 @@
+{
+  "central_dangerous_total": 789,
+  "central_caught_by_gate": 773,
+  "central_missed_by_gate": 16,
+  "escalation_compliance": 0.979721,
+  "missed_red_flags": 16,
+  "over_escalation_count": 2038,
+  "over_escalation_rate_on_benign": 0.483971,
+  "interpretation": "escalation_compliance = fraction of central/dangerous cases the triage-first safety gate escalates; missed_red_flags should be 0."
+}
