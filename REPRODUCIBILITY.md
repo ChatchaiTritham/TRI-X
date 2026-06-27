@@ -72,10 +72,14 @@ The original governance scaffold (`triage.py`, `governance.py`, `titrate.py`,
 `pipeline.py`, `xai.py`) is retained; `xai.py` now computes genuine SHAP/LIME when a
 fitted model is attached (no more normalized-input placeholders).
 
-## Manuscript headline claims vs. repository code (real, reproduced)
+## Exploratory effectiveness study (supplementary — NOT manuscript claims)
 
-All values below are produced by `scripts/run_all.py` on the synthetic test set
-(n = 1,500) and stored in `results/`.
+> These numbers are an **out-of-scope exploratory study**. The JIIS manuscript is
+> framework-only and explicitly reports *no quantitative effectiveness claims*. The
+> values below are NOT cited by the paper and must not be read as manuscript results.
+
+All values below are produced by `experimental/effectiveness/run_all.py` on the
+synthetic test set (n = 1,500) and stored in `results/`.
 
 | Metric | Value | Source file |
 |---|---|---|
@@ -118,5 +122,4 @@ All values below are produced by `scripts/run_all.py` on the synthetic test set
 ## Target journal
 
 The portfolio target is the *Journal of Intelligent Information Systems (JIIS, Springer)*.
-The manuscript LaTeX source still uses the Elsevier `elsarticle` class; converting to the
-Springer `sn-jnl` template is a separate, human-reviewed step.
+The manuscript LaTeX source is on the Springer `sn-jnl` template (migration complete).
