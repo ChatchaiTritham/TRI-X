@@ -123,9 +123,21 @@
     "original_class": "BPPV",
     "n_counterfactuals": 2
   },
+  "nmf": {
+    "available": true,
+    "method": "sklearn.decomposition.NMF (nndsvda init; per-feature min-max scaled)",
+    "n_components": 6,
+    "seed": 42,
+    "n_samples": 5000,
+    "n_features": 22,
+    "feature_scaling": "per-feature min-max to [0,1]",
+    "reconstruction_err": 90.748854,
+    "n_iter": 154
+  },
   "explainers_available": {
     "shap": true,
     "lime": true,
-    "dice": true
+    "dice": true,
+    "nmf": true
   }
 }

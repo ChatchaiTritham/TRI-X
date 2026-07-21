@@ -1,6 +1,7 @@
 {
   "package": "trix",
-  "pipeline": "trix.empirical (real synthetic-cohort ML pipeline)",
+  "pipeline": "trix.empirical (real synthetic-cohort ML pipeline) \u2014 EXPLORATORY, outside manuscript scope",
+  "scope_note": "Supplementary effectiveness study; the JIIS manuscript reports no quantitative effectiveness.",
   "seed": 42,
   "n_cases": 5000,
   "data_disclosure": "All data synthetic; no real patient data; no human ratings.",
@@ -14,14 +15,16 @@
   "explainers_available": {
     "shap": true,
     "lime": true,
-    "dice": true
+    "dice": true,
+    "nmf": true
   },
   "deterministic_outputs": [
     "results/cohort_distribution.csv",
     "results/feature_summary.csv",
     "results/diagnostic_performance.json",
     "results/critical_scenario.json",
-    "results/explainability.json"
+    "results/explainability.json",
+    "results/nmf_factors.json"
   ],
   "non_deterministic_outputs": [
     "results/latency_summary.json"
@@ -38,6 +41,6 @@
     "central_npv": 0.993485,
     "central_specificity": 0.965954,
     "central_ppv": 0.841912,
-    "latency_s": 0.0205
+    "latency_s": 0.1329
   }
 }

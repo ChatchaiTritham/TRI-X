@@ -1,8 +1,8 @@
 {
   "n_timed": 500,
-  "mean_ms": 20.5021,
-  "median_ms": 20.0222,
-  "p95_ms": 24.1198,
-  "mean_s": 0.0205,
+  "mean_ms": 132.9438,
+  "median_ms": 78.5789,
+  "p95_ms": 515.558,
+  "mean_s": 0.1329,
   "note": "Single-case ensemble inference latency; hardware dependent, not byte-stable."
 }

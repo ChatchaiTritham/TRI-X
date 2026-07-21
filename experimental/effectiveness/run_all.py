@@ -22,7 +22,8 @@ SYNTHETIC cohort:
    specificity, PPV; compare against a rule-based baseline and a standalone single ML
    model with McNemar's test (``trix.empirical.metrics``).
 4. Compute genuine explainability (SHAP global importance; LIME and DiCE on a sample
-   instance when those libraries are installed) (``trix.empirical.explain``).
+   instance when those libraries are installed) (``trix.empirical.explain``), plus
+   data-level NMF symptom-pattern factorization over the cohort (``trix.empirical.nmf``).
 5. Measure per-case inference latency.
 
 All numeric outputs are written to ``results/``. The model fit and the bootstrap CIs
@@ -62,6 +63,7 @@ from trix.empirical import (  # noqa: E402
 )
 from trix.empirical import explain as xai  # noqa: E402
 from trix.empirical import metrics as M  # noqa: E402
+from trix.empirical import nmf as nmf_mod  # noqa: E402
 
 RESULTS_DIR = ROOT / "results"
 SEED = DEFAULT_RANDOM_SEED  # 42
@@ -206,16 +208,26 @@ def main() -> None:
     dice_res = xai.compute_dice(
         ens, X_tr, y_tr, sample, cohort.feature_names, list(DIAGNOSES)
     )
+    # Data-level XAI: NMF symptom-pattern factorization over the full synthetic cohort
+    # (unsupervised; recovers latent structure independent of the predictive model).
+    nmf_res = nmf_mod.factorize_symptoms(
+        X, cohort.feature_names,
+        diagnosis_labels=y, diagnosis_names=list(DIAGNOSES),
+        n_components=6, seed=SEED,
+    )
+    _write_json("nmf_factors.json", nmf_res)
     explain_payload = {
         "shap": shap_res,
         "lime": {k: v for k, v in lime_res.items() if k != "local_weights"} | (
             {"local_weights": lime_res.get("local_weights", [])[:10]} if lime_res.get("available") else {}
         ),
         "dice": dice_res,
+        "nmf": {k: v for k, v in nmf_res.items() if k != "factors"},
         "explainers_available": {
             "shap": shap_res.get("available", False),
             "lime": lime_res.get("available", False),
             "dice": dice_res.get("available", False),
+            "nmf": nmf_res.get("available", False),
         },
     }
     _write_json("explainability.json", explain_payload)
@@ -255,6 +267,7 @@ def main() -> None:
             "results/diagnostic_performance.json",
             "results/critical_scenario.json",
             "results/explainability.json",
+            "results/nmf_factors.json",
         ],
         "non_deterministic_outputs": ["results/latency_summary.json"],
         "headline_numbers": {

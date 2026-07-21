@@ -12,6 +12,10 @@ The paper this repository supports is methodological. Its claims are about decis
 
 A second, exploratory layer also lives here, fenced off under `experimental/effectiveness/`. It fits a small machine-learning ensemble on the synthetic cohort and prints accuracy, sensitivity, and explainability numbers. Those numbers are not part of the manuscript and should not be read as effectiveness evidence — they are kept as supplementary tooling, and the caveat is spelled out below so the boundary stays clear.
 
+## Concept & Methodology
+
+The canonical concept and methodology specification — the three-layer Triage–TiTrATE–XAI design, the uncertainty-as-decision-control-signal principle, the synthetic-data-first stance, the five-group (G1–G5) decision-behaviour schema, and the §5 governance checklist that **both this repository and the manuscript must conform to** — is in [docs/CONCEPT_METHODOLOGY.md](docs/CONCEPT_METHODOLOGY.md). Treat that document as the source of truth; reconcile any drift in prose, claims, figures, or code against it.
+
 ## Key results (framework behaviour — what the paper reports)
 
 These are the decision-behaviour artefacts the framework runner regenerates; they are properties of the specification and the synthetic cohort, not performance claims. Run `python scripts/run_framework.py` to write them to `results/framework/`.

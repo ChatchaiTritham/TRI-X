@@ -1,0 +1,343 @@
+{
+  "available": true,
+  "method": "sklearn.decomposition.NMF (nndsvda init; per-feature min-max scaled)",
+  "n_components": 6,
+  "seed": 42,
+  "n_samples": 5000,
+  "n_features": 22,
+  "feature_scaling": "per-feature min-max to [0,1]",
+  "reconstruction_err": 90.748854,
+  "n_iter": 154,
+  "factors": [
+    {
+      "factor": 0,
+      "top_features": [
+        [
+          "onset_acute",
+          10.0104
+        ],
+        [
+          "continuous_symptoms",
+          9.720513
+        ],
+        [
+          "episode_duration_min",
+          5.611454
+        ],
+        [
+          "age",
+          2.412789
+        ],
+        [
+          "hearing_loss",
+          1.979798
+        ],
+        [
+          "tinnitus",
+          1.707621
+        ],
+        [
+          "triage_risk_score",
+          1.58813
+        ],
+        [
+          "gait_unsteady_severe",
+          1.181943
+        ]
+      ],
+      "n_dominant_samples": 181,
+      "top_archetypes": [
+        [
+          "Vestibular Neuritis",
+          71,
+          39.23
+        ],
+        [
+          "Labyrinthitis",
+          52,
+          28.73
+        ],
+        [
+          "PPPD",
+          24,
+          13.26
+        ]
+      ]
+    },
+    {
+      "factor": 1,
+      "top_features": [
+        [
+          "positional_trigger",
+          12.063166
+        ],
+        [
+          "age",
+          2.78198
+        ],
+        [
+          "onset_acute",
+          1.405471
+        ],
+        [
+          "smoking",
+          1.393893
+        ],
+        [
+          "triage_risk_score",
+          0.916894
+        ],
+        [
+          "hypertension",
+          0.757821
+        ],
+        [
+          "diabetes",
+          0.738111
+        ],
+        [
+          "n_vascular_risk_factors",
+          0.666356
+        ]
+      ],
+      "n_dominant_samples": 183,
+      "top_archetypes": [
+        [
+          "BPPV",
+          134,
+          73.22
+        ],
+        [
+          "Vestibular Migraine",
+          15,
+          8.2
+        ],
+        [
+          "Benign Other",
+          10,
+          5.46
+        ]
+      ]
+    },
+    {
+      "factor": 2,
+      "top_features": [
+        [
+          "head_impulse_normal",
+          7.493854
+        ],
+        [
+          "triage_risk_score",
+          1.289329
+        ],
+        [
+          "headache",
+          1.063114
+        ],
+        [
+          "age",
+          0.84751
+        ],
+        [
+          "onset_acute",
+          0.471215
+        ],
+        [
+          "nystagmus_direction_changing",
+          0.425122
+        ],
+        [
+          "skew_deviation",
+          0.2686
+        ],
+        [
+          "prior_stroke",
+          0.188339
+        ]
+      ],
+      "n_dominant_samples": 771,
+      "top_archetypes": [
+        [
+          "BPPV",
+          325,
+          42.15
+        ],
+        [
+          "Vestibular Migraine",
+          152,
+          19.71
+        ],
+        [
+          "PPPD",
+          64,
+          8.3
+        ]
+      ]
+    },
+    {
+      "factor": 3,
+      "top_features": [
+        [
+          "sex_female",
+          7.551833
+        ],
+        [
+          "tinnitus",
+          0.962648
+        ],
+        [
+          "age",
+          0.821221
+        ],
+        [
+          "hearing_loss",
+          0.814129
+        ],
+        [
+          "smoking",
+          0.400064
+        ],
+        [
+          "triage_risk_score",
+          0.285753
+        ],
+        [
+          "headache",
+          0.233449
+        ],
+        [
+          "n_vascular_risk_factors",
+          0.105907
+        ]
+      ],
+      "n_dominant_samples": 839,
+      "top_archetypes": [
+        [
+          "BPPV",
+          275,
+          32.78
+        ],
+        [
+          "Meniere's Disease",
+          137,
+          16.33
+        ],
+        [
+          "Vestibular Migraine",
+          116,
+          13.83
+        ]
+      ]
+    },
+    {
+      "factor": 4,
+      "top_features": [
+        [
+          "hypertension",
+          5.066562
+        ],
+        [
+          "diabetes",
+          2.678985
+        ],
+        [
+          "headache",
+          2.58428
+        ],
+        [
+          "n_vascular_risk_factors",
+          2.334669
+        ],
+        [
+          "smoking",
+          2.09524
+        ],
+        [
+          "gait_unsteady_severe",
+          1.954914
+        ],
+        [
+          "nystagmus_direction_changing",
+          1.92864
+        ],
+        [
+          "focal_neuro_deficit",
+          1.763542
+        ]
+      ],
+      "n_dominant_samples": 741,
+      "top_archetypes": [
+        [
+          "Posterior Circulation Stroke",
+          310,
+          41.84
+        ],
+        [
+          "TIA",
+          134,
+          18.08
+        ],
+        [
+          "BPPV",
+          88,
+          11.88
+        ]
+      ]
+    },
+    {
+      "factor": 5,
+      "top_features": [
+        [
+          "nausea_vomiting",
+          5.573776
+        ],
+        [
+          "age",
+          0.376636
+        ],
+        [
+          "tinnitus",
+          0.222031
+        ],
+        [
+          "episode_duration_min",
+          0.18326
+        ],
+        [
+          "triage_risk_score",
+          0.16649
+        ],
+        [
+          "smoking",
+          0.144498
+        ],
+        [
+          "n_vascular_risk_factors",
+          0.050044
+        ],
+        [
+          "hearing_loss",
+          0.008517
+        ]
+      ],
+      "n_dominant_samples": 2285,
+      "top_archetypes": [
+        [
+          "BPPV",
+          550,
+          24.07
+        ],
+        [
+          "Vestibular Neuritis",
+          489,
+          21.4
+        ],
+        [
+          "Labyrinthitis",
+          321,
+          14.05
+        ]
+      ]
+    }
+  ]
+}
