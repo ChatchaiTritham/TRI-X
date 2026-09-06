@@ -30,17 +30,17 @@
     "results/latency_summary.json"
   ],
   "headline_numbers": {
-    "hybrid_accuracy": 0.796,
+    "hybrid_accuracy": 0.798,
     "hybrid_accuracy_ci95": [
-      0.775333,
-      0.816
+      0.778,
+      0.818
     ],
     "rule_based_accuracy": 0.345333,
-    "standalone_ml_accuracy": 0.782,
-    "central_sensitivity": 0.966245,
-    "central_npv": 0.993485,
-    "central_specificity": 0.965954,
-    "central_ppv": 0.841912,
-    "latency_s": 0.1329
+    "standalone_ml_accuracy": 0.782667,
+    "central_sensitivity": 0.970464,
+    "central_npv": 0.99422,
+    "central_specificity": 0.953286,
+    "central_ppv": 0.795848,
+    "latency_s": 0.0593
   }
 }

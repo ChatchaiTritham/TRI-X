@@ -1,0 +1,64 @@
+{
+  "methodology": "50 untimed warm-up predictions, then 500 timed single-case predictions via time.perf_counter(), repeated 5 times in one process; no profiler/tracer attached during timing.",
+  "hardware": {
+    "platform": "Windows-10-10.0.26200-SP0",
+    "processor": "Intel64 Family 6 Model 158 Stepping 9, GenuineIntel",
+    "python": "3.11.15"
+  },
+  "note": "Single-case ensemble inference latency is hardware- and load-dependent and not byte-stable across machines/runs; this file reports the measurement procedure and the observed range so the manuscript number is traceable.",
+  "per_repeat": [
+    {
+      "repeat": 0,
+      "n_timed": 500,
+      "mean_ms": 50.9907,
+      "median_ms": 49.5786,
+      "p95_ms": 63.1915,
+      "min_ms": 34.3247,
+      "max_ms": 199.666
+    },
+    {
+      "repeat": 1,
+      "n_timed": 500,
+      "mean_ms": 50.2668,
+      "median_ms": 51.3085,
+      "p95_ms": 62.7089,
+      "min_ms": 33.5094,
+      "max_ms": 106.8434
+    },
+    {
+      "repeat": 2,
+      "n_timed": 500,
+      "mean_ms": 40.2048,
+      "median_ms": 39.4216,
+      "p95_ms": 50.1836,
+      "min_ms": 33.0515,
+      "max_ms": 65.2879
+    },
+    {
+      "repeat": 3,
+      "n_timed": 500,
+      "mean_ms": 42.636,
+      "median_ms": 40.641,
+      "p95_ms": 55.9569,
+      "min_ms": 33.094,
+      "max_ms": 110.4788
+    },
+    {
+      "repeat": 4,
+      "n_timed": 500,
+      "mean_ms": 42.1352,
+      "median_ms": 40.1691,
+      "p95_ms": 56.0142,
+      "min_ms": 32.6908,
+      "max_ms": 180.4674
+    }
+  ],
+  "pooled": {
+    "n_timed": 2500,
+    "mean_ms": 45.2467,
+    "median_ms": 43.3693,
+    "p95_ms": 60.4042,
+    "min_ms": 32.6908,
+    "max_ms": 199.666
+  }
+}
