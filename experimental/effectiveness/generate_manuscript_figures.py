@@ -1,10 +1,12 @@
-"""Generate EXPLORATORY effectiveness figures for TRI-X from computed results/.
+"""Generate effectiveness figures for TRI-X from computed results/.
 
-SUPPLEMENTARY — outside the manuscript's scope. The TRI-X (JIIS) paper reports no
-quantitative effectiveness; these accuracy/sensitivity/SHAP figures belong to the
-exploratory ML layer (see ``experimental/effectiveness/README.md``). Every panel is
-derived from ``results/`` produced by ``experimental/effectiveness/run_all.py`` -- no
-performance literal is hardcoded here.
+These accuracy/sensitivity/SHAP figures are repo-only illustrations of the
+reference-implementation comparison reported numerically in Table 2 of the
+manuscript (see ``experimental/effectiveness/README.md`` for the scope caveat);
+the figures themselves are not included in the manuscript, which uses only
+conceptual framework diagrams. Every panel is derived from ``results/`` produced
+by ``experimental/effectiveness/run_all.py`` -- no performance literal is
+hardcoded here.
 
 Run order:
     python experimental/effectiveness/run_all.py
@@ -115,7 +117,7 @@ def figure1_accuracy(output_dir: Path) -> dict[str, str]:
         "pdf": str(pdf_path.relative_to(ROOT)),
         "source_script": SOURCE_SCRIPT,
         "source_data": "results/diagnostic_performance.json",
-        "caption": "Multiclass diagnostic accuracy with bootstrap 95% CIs (synthetic test set). Exploratory; outside manuscript scope.",
+        "caption": "Multiclass diagnostic accuracy with bootstrap 95% CIs (synthetic test set); numeric values reported in Table 2 of the manuscript.",
         "article_section": "Supplementary (not in manuscript)",
     }
 
@@ -158,7 +160,7 @@ def figure2_critical(output_dir: Path) -> dict[str, str]:
         "pdf": str(pdf_path.relative_to(ROOT)),
         "source_script": SOURCE_SCRIPT,
         "source_data": "results/critical_scenario.json",
-        "caption": "Stroke/TIA detection sensitivity, specificity, PPV and NPV across methods. Exploratory; outside manuscript scope.",
+        "caption": "Stroke/TIA detection sensitivity, specificity, PPV and NPV across methods; numeric values reported in Table 2 of the manuscript.",
         "article_section": "Supplementary (not in manuscript)",
     }
 
@@ -187,7 +189,7 @@ def figure3_shap(output_dir: Path) -> dict[str, str]:
         "pdf": str(pdf_path.relative_to(ROOT)),
         "source_script": SOURCE_SCRIPT,
         "source_data": "results/explainability.json",
-        "caption": "Top-10 global feature importance from genuine SHAP TreeExplainer attributions. Exploratory; outside manuscript scope.",
+        "caption": "Top-10 global feature importance from genuine SHAP TreeExplainer attributions (repo-only illustration, not included in the manuscript).",
         "article_section": "Supplementary (not in manuscript)",
     }
 

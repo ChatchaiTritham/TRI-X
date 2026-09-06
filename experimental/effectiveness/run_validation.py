@@ -1,14 +1,16 @@
-"""Convenience runner for the EXPLORATORY effectiveness study (outside manuscript scope).
+"""Convenience runner for the Table 2 reference-implementation effectiveness study.
 
-This regenerates every supplementary ML metric on the documented synthetic cohort and
-then renders the exploratory figures. It is equivalent to running, in order:
+This regenerates every effectiveness metric on the documented synthetic cohort and
+then renders the accompanying figures. It is equivalent to running, in order:
 
     python experimental/effectiveness/run_all.py
     python experimental/effectiveness/generate_manuscript_figures.py
 
-NOTE: these effectiveness numbers are NOT part of the TRI-X (JIIS) manuscript, which
-reports no quantitative effectiveness. For the artefacts the paper reports (safety-gate
-compliance, missingness stability, trace completeness, G1-G5 schema), run instead:
+NOTE: these effectiveness numbers ARE reported in Table 2 of the TRI-X (JIIS)
+manuscript, as an illustrative reference-implementation comparison rather than a
+validated clinical-effectiveness claim. For the governance-framework artefacts the
+paper's Results section body reports (safety-gate compliance, missingness stability,
+trace completeness, G1-G5 schema), run instead:
 
     python scripts/run_framework.py
 

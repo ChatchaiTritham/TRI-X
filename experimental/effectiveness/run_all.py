@@ -1,14 +1,15 @@
-"""EXPLORATORY effectiveness pipeline for TRI-X (seed = 42) — OUTSIDE manuscript scope.
+"""Reference-implementation effectiveness pipeline for TRI-X (seed = 42).
 
-This script is SUPPLEMENTARY. The TRI-X manuscript (JIIS) is a methodological /
-governance framework and reports *no quantitative effectiveness claims*. It evaluates
-decision behaviour (safety-gate compliance, stability under missingness, trace
-completeness), not diagnostic accuracy. The numbers produced here (multiclass accuracy,
-sensitivity/specificity/PPV/NPV, McNemar, SHAP/LIME/DiCE) are an exploratory ML study
-on a synthetic cohort and are NOT part of the paper's claims. See
+The TRI-X manuscript (JIIS) is primarily a methodological / governance framework,
+evaluating decision behaviour (safety-gate compliance, stability under missingness,
+trace completeness) rather than diagnostic accuracy. The numbers produced here
+(multiclass accuracy, sensitivity/specificity/PPV/NPV, McNemar) ARE, however,
+reported in Table 2 of the manuscript, as an illustrative reference-implementation
+comparison rather than a validated clinical-effectiveness claim — see the
+manuscript's own hedge ("not as a validated clinical-effectiveness claim") and
 ``experimental/effectiveness/README.md``.
 
-For the artefacts the paper DOES report, run the primary entry point instead:
+For the governance-framework artefacts (the Results section body), run:
 
     python scripts/run_framework.py
 
@@ -86,7 +87,7 @@ def _write_csv(name: str, header: list[str], rows: list[dict]) -> None:
 
 def main() -> None:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    print("[run_all] EXPLORATORY effectiveness study — outside manuscript scope.")
+    print("[run_all] Reference-implementation effectiveness study (Table 2 of the manuscript).")
     print(f"[run_all] seed={SEED} n_cases={N_CASES}")
 
     # --- 1. cohort -----------------------------------------------------------
@@ -252,8 +253,8 @@ def main() -> None:
     # --- manifest ------------------------------------------------------------
     manifest = {
         "package": "trix",
-        "pipeline": "trix.empirical (real synthetic-cohort ML pipeline) — EXPLORATORY, outside manuscript scope",
-        "scope_note": "Supplementary effectiveness study; the JIIS manuscript reports no quantitative effectiveness.",
+        "pipeline": "trix.empirical (real synthetic-cohort ML pipeline)",
+        "scope_note": "These headline numbers (hybrid/standalone/rule-only accuracy and CIs, sensitivity/specificity/NPV/PPV) are reported in Table 2 of the JIIS manuscript as an illustrative reference-implementation comparison, not as a validated clinical-effectiveness claim.",
         "seed": SEED,
         "n_cases": N_CASES,
         "data_disclosure": "All data synthetic; no real patient data; no human ratings.",
@@ -284,7 +285,7 @@ def main() -> None:
     }
     _write_json("manifest.json", manifest)
 
-    print("[run_all] === EXPLORATORY RESULTS (outside manuscript scope) ===")
+    print("[run_all] === RESULTS (reported in Table 2 of the manuscript) ===")
     print(f"  hybrid accuracy : {acc_hybrid:.4f}  CI95 [{lo_h:.4f}, {hi_h:.4f}]")
     print(f"  rule-based acc  : {acc_rules:.4f}")
     print(f"  standalone ML   : {acc_ml:.4f}")

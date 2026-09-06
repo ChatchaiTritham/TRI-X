@@ -28,9 +28,9 @@ These are the decision-behaviour artefacts the framework runner regenerates; the
 - Trace completeness: every routed decision carries a complete, schema-valid audit trace (`results/framework/trace_completeness.json`).
 - A synthetic ED vestibular cohort generated under seed 42, with central/dangerous presentations enriched to roughly 15%, used purely for stress-testing the decision logic.
 
-### Supplementary (exploratory ML — outside manuscript scope)
+### Reference-implementation effectiveness comparison (Table 2)
 
-The exploratory ML layer under `experimental/effectiveness/` computes accuracy/sensitivity/SHAP outputs (e.g. multiclass accuracy near 79.6%, central-condition sensitivity near 96.6% on the held-out synthetic split) via `experimental/effectiveness/run_all.py`. These are **outside the manuscript's scope**, which reports no quantitative effectiveness. Treat them as exploratory only; see `experimental/effectiveness/README.md`.
+The ML layer under `experimental/effectiveness/` computes accuracy/sensitivity/SHAP outputs (multiclass accuracy near 79.8%, central-condition sensitivity near 97.0% on the held-out synthetic split) via `experimental/effectiveness/run_all.py`. These numbers **are reported in Table 2 of the manuscript**, presented explicitly as an illustrative reference-implementation comparison rather than a validated clinical-effectiveness claim; see `experimental/effectiveness/README.md`.
 
 ## Repository structure
 
@@ -39,12 +39,12 @@ scripts/run_framework.py   PRIMARY entry point — framework decision-behaviour 
 src/trix/                  framework logic: triage, titrate, governance, pipeline, xai
 src/trix/empirical/        reusable library: synthetic cohort, rule baseline, ensemble,
                            metrics, explainers (shared by framework + effectiveness layers)
-experimental/effectiveness/  SUPPLEMENTARY exploratory ML study (run_all, figures,
-                           run_validation) — outside manuscript scope; see its README
+experimental/effectiveness/  Table 2 reference-implementation study (run_all, figures,
+                           run_validation); see its README for the scope caveat
 scripts/                   thin redirect stubs for the relocated effectiveness scripts
 examples/                  structural framework diagrams (drawn, not fitted)
 results/framework/         framework behaviour artefacts (JSON), written by run_framework
-results/                   exploratory ML outputs (JSON/CSV), written by the effectiveness run
+results/                   Table 2 reference-implementation outputs (JSON/CSV), written by the effectiveness run
 figures/, outputs/         rendered figure artefacts
 tests/                     unit + determinism checks
 ```
@@ -71,7 +71,7 @@ python -m pytest -q                             # unit + determinism tests
 
 `run_framework.py` exercises only the deterministic governance logic — no ML model is trained — and writes the safety-gate compliance, G1–G5 schema, monotone-escalation invariant, missingness-stability, and trace-completeness artefacts to `results/framework/`. All values are deterministic given seed 42.
 
-Supplementary effectiveness study (exploratory; outside manuscript scope):
+Table 2 reference-implementation comparison:
 
 ```bash
 python experimental/effectiveness/run_all.py                     # seed 42; populates results/

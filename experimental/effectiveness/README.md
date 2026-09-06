@@ -1,22 +1,24 @@
-# Experimental — Effectiveness study (SUPPLEMENTARY, outside the manuscript's scope)
+# Experimental — Effectiveness study (Table 2 reference implementation)
 
-> **Read this first.** Everything in this folder is **exploratory** and is **not part of
-> the TRI-X manuscript's claims.** The paper
+> **Read this first.** The TRI-X manuscript
 > ([JIIS](../../README.md), *A Safety-First Explainable Framework for Decision-Centric
-> Clinical Triage under Diagnostic Uncertainty*) is a **methodological / governance
-> framework**. It explicitly **reports no quantitative effectiveness claims** and
-> evaluates **decision behaviour** — safety-gate compliance, stability under missingness,
-> and trace completeness — **not diagnostic accuracy**.
+> Clinical Triage under Diagnostic Uncertainty*) is primarily a **methodological / governance
+> framework**, evaluating **decision behaviour** — safety-gate compliance, stability under
+> missingness, and trace completeness — **not diagnostic accuracy**. However, the manuscript's
+> Table 2 *does* report headline numbers from this folder's pipeline (accuracy, sensitivity,
+> specificity, PPV/NPV, McNemar), presented explicitly as an **illustrative
+> reference-implementation comparison, not a validated clinical-effectiveness claim** — see
+> the manuscript text itself for that hedge.
 
 ## What lives here
 
 A small, fully reproducible machine-learning effectiveness study fitted on the
-synthetic cohort. It exists because the code is real and was useful for internal
-exploration, but its outputs (multiclass accuracy, sensitivity/specificity/PPV/NPV,
-McNemar tests, SHAP/LIME/DiCE attributions, latency) **must not be read as
-effectiveness evidence for the framework.** They are kept here, clearly fenced off,
-so a reader who opens the repository sees a governance framework first and an optional
-exploratory benchmark second.
+synthetic cohort. Its outputs (multiclass accuracy, sensitivity/specificity/PPV/NPV,
+McNemar tests, SHAP/LIME/DiCE attributions, latency) are the numeric source for the
+manuscript's Table 2 and should be read with the same caveat as the manuscript itself:
+**illustrative reference-implementation numbers, not validated clinical-effectiveness
+evidence.** They are kept in this separate folder so a reader who opens the repository
+sees the governance framework first and this reference-implementation comparison second.
 
 | File | What it does |
 |---|---|
