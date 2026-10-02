@@ -1,219 +1,102 @@
-"""TiTrATE execution engine for TRI-X."""
+"""Clinical TiTrATE phenotyping for TRI-X.
+
+TiTrATE means Timing, Triggers, And Targeted Examination.  This module does
+not use the term TiTrATE for execution timeouts.
+"""
 
 from __future__ import annotations
 
-import asyncio
-import logging
-import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional
-
-logger = logging.getLogger(__name__)
-
-DEFAULT_MAX_EXECUTION_SECONDS = 5.0
-DEFAULT_EXECUTION_TIMEOUT_TRIGGER = "timeout"
-DEFAULT_TIMESTAMP_KEY = "timestamp"
+from typing import Any, Dict, List
 
 
-class ExecutionStatus(Enum):
-    """Status of action execution."""
-
-    SUCCESS = "success"
-    TIMEOUT = "timeout"
-    FAILED = "failed"
-    ABORTED = "aborted"
-
-
-@dataclass
-class TemporalConstraint:
-    """Temporal constraint definition."""
-
-    max_time: float = DEFAULT_MAX_EXECUTION_SECONDS
-    deadline: Optional[float] = None
-    min_time: Optional[float] = None
-    periodic: bool = False
-    period: Optional[float] = None
+class DataQuality(Enum):
+    COMPLETE = "complete"
+    INCOMPLETE = "incomplete"
+    CONTRADICTORY = "contradictory"
 
 
 @dataclass
 class TiTrATEResult:
-    """Result of TiTrATE execution."""
+    """Structured clinical TiTrATE representation."""
 
-    status: ExecutionStatus
-    result: Any
-    execution_time: float
-    constraint_met: bool
+    timing: Dict[str, Any]
+    triggers: Dict[str, Any]
+    targeted_examination: Dict[str, Any]
+    syndrome: str
+    missing_safety_fields: List[str] = field(default_factory=list)
+    uncertainty_reasons: List[str] = field(default_factory=list)
+    data_quality: DataQuality = DataQuality.INCOMPLETE
     metadata: Dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def requires_uncertainty_escalation(self) -> bool:
+        """Unknown safety-critical data must never support a downgrade."""
+        return bool(self.missing_safety_fields or self.uncertainty_reasons)
 
 
 class TiTrATEEngine:
-    """Execute actions under temporal constraints."""
+    """Structure dizziness/vertigo history using clinical TiTrATE."""
 
-    def __init__(
-        self,
-        max_time: float = DEFAULT_MAX_EXECUTION_SECONDS,
-        enable_timeout: bool = True,
-        enable_logging: bool = True,
-    ):
-        self.max_time = max_time
-        self.enable_timeout = enable_timeout
-        self.enable_logging = enable_logging
-        self.execution_history: List[TiTrATEResult] = []
-        logger.info("TiTrATEEngine initialized with max_time=%ss", max_time)
+    DEFAULT_SAFETY_FIELDS = (
+        "new_focal_neurologic_deficit",
+        "unable_to_walk_or_stand",
+        "new_severe_headache_or_neck_pain",
+        "syncope_or_loss_of_consciousness",
+    )
 
-    def execute(
-        self,
-        action: Callable[..., Any],
-        constraint: Optional[TemporalConstraint] = None,
-        *args: Any,
-        **kwargs: Any,
-    ) -> TiTrATEResult:
-        """Execute an action with an optional temporal constraint."""
-        active_constraint = constraint or TemporalConstraint(max_time=self.max_time)
-        start_time = time.time()
-        execution_status = ExecutionStatus.SUCCESS
-        action_result: Any = None
-        constraint_met = True
+    def __init__(self, safety_fields: List[str] | None = None):
+        self.safety_fields = tuple(safety_fields or self.DEFAULT_SAFETY_FIELDS)
 
-        try:
-            if self.enable_timeout:
-                action_result = self._execute_with_timeout(
-                    action,
-                    active_constraint.max_time,
-                    *args,
-                    **kwargs,
-                )
-            else:
-                action_result = action(*args, **kwargs)
-        except TimeoutError:
-            execution_status = ExecutionStatus.TIMEOUT
-            constraint_met = False
-            logger.warning("Action execution timed out after %ss", active_constraint.max_time)
-        except Exception as exc:  # pragma: no cover - defensive path
-            execution_status = ExecutionStatus.FAILED
-            constraint_met = False
-            logger.error("Action execution failed: %s", exc)
+    def assess(self, input_data: Dict[str, Any]) -> TiTrATEResult:
+        """Create a TiTrATE phenotype while preserving unknown values."""
+        timing = dict(input_data.get("timing") or {})
+        triggers = dict(input_data.get("triggers") or {})
+        examination = dict(input_data.get("targeted_examination") or {})
 
-        execution_time = time.time() - start_time
-        current_time = time.time()
+        missing = [
+            name for name in self.safety_fields
+            if input_data.get(name) is None
+        ]
+        uncertainty = list(input_data.get("uncertainty_reasons") or [])
 
-        if active_constraint.deadline is not None and current_time > active_constraint.deadline:
-            execution_status = ExecutionStatus.TIMEOUT
-            constraint_met = False
+        syndrome = self._classify_syndrome(timing, triggers)
+        quality = (
+            DataQuality.COMPLETE
+            if timing and "onset" in timing and not missing and not uncertainty
+            else DataQuality.INCOMPLETE
+        )
 
-        if active_constraint.min_time is not None and execution_time < active_constraint.min_time:
-            constraint_met = False
-
-        titrate_result = TiTrATEResult(
-            status=execution_status,
-            result=action_result,
-            execution_time=execution_time,
-            constraint_met=constraint_met,
+        return TiTrATEResult(
+            timing=timing,
+            triggers=triggers,
+            targeted_examination=examination,
+            syndrome=syndrome,
+            missing_safety_fields=missing,
+            uncertainty_reasons=uncertainty,
+            data_quality=quality,
             metadata={
-                "max_time": active_constraint.max_time,
-                "deadline": active_constraint.deadline,
-                DEFAULT_TIMESTAMP_KEY: start_time,
+                "framework": "Timing-Triggers-And-Targeted Examination",
+                "patient_reported_exam_restriction": (
+                    "Targeted examination findings must identify their source; "
+                    "clinician-only examinations must not be inferred from patient self-report."
+                ),
             },
         )
-        self.execution_history.append(titrate_result)
 
-        if self.enable_logging:
-            logger.info(
-                "TiTrATE execution: status=%s time=%.3fs constraint_met=%s",
-                execution_status.value,
-                execution_time,
-                constraint_met,
-            )
+    @staticmethod
+    def _classify_syndrome(
+        timing: Dict[str, Any], triggers: Dict[str, Any]
+    ) -> str:
+        """Conservative syndrome structuring; unknown remains unknown."""
+        pattern = str(timing.get("pattern", "")).strip().lower()
+        has_trigger = triggers.get("present")
 
-        return titrate_result
-
-    def _execute_with_timeout(
-        self,
-        action: Callable[..., Any],
-        timeout_seconds: float,
-        *args: Any,
-        **kwargs: Any,
-    ) -> Any:
-        """Execute a callable with timeout enforcement."""
-        import threading
-
-        result_container: List[Any] = [None]
-        exception_container: List[Optional[BaseException]] = [None]
-
-        def wrapped_action() -> None:
-            try:
-                result_container[0] = action(*args, **kwargs)
-            except BaseException as exc:  # pragma: no cover - defensive path
-                exception_container[0] = exc
-
-        worker_thread = threading.Thread(target=wrapped_action, daemon=True)
-        worker_thread.start()
-        worker_thread.join(timeout_seconds)
-
-        if worker_thread.is_alive():
-            raise TimeoutError(f"Execution exceeded {timeout_seconds}s")
-
-        if exception_container[0] is not None:
-            raise exception_container[0]
-
-        return result_container[0]
-
-    async def execute_async(
-        self,
-        action: Callable[..., Any],
-        constraint: Optional[TemporalConstraint] = None,
-        *args: Any,
-        **kwargs: Any,
-    ) -> TiTrATEResult:
-        """Asynchronous version of :meth:`execute`."""
-        active_constraint = constraint or TemporalConstraint(max_time=self.max_time)
-        start_time = time.time()
-        execution_status = ExecutionStatus.SUCCESS
-        action_result: Any = None
-        constraint_met = True
-
-        try:
-            action_result = await asyncio.wait_for(
-                action(*args, **kwargs),
-                timeout=active_constraint.max_time,
-            )
-        except asyncio.TimeoutError:
-            execution_status = ExecutionStatus.TIMEOUT
-            constraint_met = False
-        except Exception as exc:  # pragma: no cover - defensive path
-            execution_status = ExecutionStatus.FAILED
-            constraint_met = False
-            logger.error("Async action failed: %s", exc)
-
-        execution_time = time.time() - start_time
-        return TiTrATEResult(
-            status=execution_status,
-            result=action_result,
-            execution_time=execution_time,
-            constraint_met=constraint_met,
-            metadata={"max_time": active_constraint.max_time},
-        )
-
-    def get_statistics(self) -> Dict[str, Any]:
-        """Return aggregate execution statistics."""
-        if not self.execution_history:
-            return {}
-
-        successful_executions = sum(
-            1
-            for execution_result in self.execution_history
-            if execution_result.status == ExecutionStatus.SUCCESS
-        )
-        execution_times = [
-            execution_result.execution_time for execution_result in self.execution_history
-        ]
-
-        return {
-            "total_executions": len(self.execution_history),
-            "successful_executions": successful_executions,
-            "success_rate": successful_executions / len(self.execution_history),
-            "mean_execution_time": sum(execution_times) / len(execution_times),
-            "max_execution_time": max(execution_times),
-            "min_execution_time": min(execution_times),
-        }
+        if pattern in {"continuous", "persistent", "acute_continuous"}:
+            return "acute_continuous"
+        if pattern in {"episodic", "recurrent"} and has_trigger is True:
+            return "triggered_episodic"
+        if pattern in {"episodic", "recurrent"} and has_trigger is False:
+            return "spontaneous_episodic"
+        return "undetermined"
